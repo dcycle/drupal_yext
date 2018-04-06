@@ -1,0 +1,6 @@
+drupal_yext.settings:
+  path: '/admin/config/yext'
+  defaults:
+    _form: '\Drupal\drupal_yext\Form\YextSettingsForm'
+  requirements:
+    _permission: 'administer Yext integration'

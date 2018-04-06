@@ -1,0 +1,5 @@
+name: Drupal Yext
+type: module
+description: 'Import information from Drupal to Yext.'
+core: '8.x'
+php: 7

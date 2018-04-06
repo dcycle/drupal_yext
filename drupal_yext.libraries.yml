@@ -1,0 +1,6 @@
+ajaxy:
+  css:
+    theme:
+      css/ajaxy/ajaxy.css: {}
+  # js:
+  #   example/js.js: {}
