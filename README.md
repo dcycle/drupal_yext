@@ -19,7 +19,7 @@ Step 3: Import data using:
 Development
 -----
 
-The code is available on [GitHub](https://github.com/dcycle/drupal_yext) and [Drupal.org]().
+The code is available on [GitHub](https://github.com/dcycle/drupal_yext) and [Drupal.org](https://www.drupal.org/project/drupal_yext).
 
 Automated testing is on [CircleCI](https://circleci.com/gh/dcycle/drupal_yext).
 
