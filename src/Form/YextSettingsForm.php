@@ -92,13 +92,13 @@ class YextSettingsForm extends FormBase {
     $form['yextbase']['DrupalYextBase.nodetype'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('The target node type'),
-      '#description' => $this->t('Something like "article" or "article"'),
+      '#description' => $this->t('Something like "article" or "doctor". This is not validated, so please make sure it exists.'),
       '#default_value' => $this->yext()->yextNodeType(),
     );
     $form['yextbase']['DrupalYextBase.uniqueidfield'] = array(
       '#type' => 'textfield',
-      '#title' => $this->t('The target node type'),
-      '#description' => $this->t('Something like "article" or "article"'),
+      '#title' => $this->t('The target field ID'),
+      '#description' => $this->t('Something like "field_yext_id". This is not validated, so please make sure it exists.'),
       '#default_value' => $this->yext()->uniqueYextIdFieldName(),
     );
     try {
@@ -130,7 +130,7 @@ class YextSettingsForm extends FormBase {
       $form['yext']['DrupalYext.yextapi'] = array(
         '#type' => 'password',
         '#title' => $this->t('Yext API key'),
-        '#description' => '<strong>' . $this->t('For security reasons, you will not be able to see the API key even it is entered.') . '</strong> ' . $this->t('Can be found in your "app" in the Yext developer console.'),
+        '#description' => '<strong>' . $this->t('For security reasons, you will not be able to see the API key even if it is entered.') . '</strong> ' . $this->t('Can be found in your "app" in the Yext developer console.'),
         '#default_value' => $key,
       );
       $checkmessage = $this->yextTestString();
@@ -227,9 +227,8 @@ HEREDOC
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
-
-    $this->yext()->setNodeType($input['DrupalYextBase.nodetype']);
-    $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase.uniqueidfield']);
+    $this->yext()->setNodeType($input['DrupalYextBase_nodetype']);
+    $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase_uniqueidfield']);
     $this->yext()->apiKey($input['DrupalYext_yextapi']);
     $this->yext()->base($input['DrupalYext_yextbase']);
     $this->yext()->setNextDate($input['DrupalYext_yextnext']);

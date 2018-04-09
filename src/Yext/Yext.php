@@ -404,7 +404,7 @@ class Yext {
    *   The node type such as 'article'.
    */
   public function setNodeType(string $type) {
-    $this->stateSet('drupal_yext_node_type', $type);
+    $this->configSet('target_node_type', $type);
   }
 
   /**
@@ -414,7 +414,7 @@ class Yext {
    *   The field such as 'field_something'.
    */
   public function setUniqueYextIdFieldName(string $field) {
-    $this->stateSet('drupal_yext_unique_id_field', $field);
+    $this->configSet('target_unique_id_field', $field);
   }
 
   /**
@@ -454,7 +454,7 @@ class Yext {
    * @throws \Throwable
    */
   public function uniqueYextIdFieldName() : string {
-    return $this->stateGet('drupal_yext_unique_id_field', 'field_yext_unique_id');
+    return $this->configGet('target_unique_id_field', 'field_yext_unique_id');
   }
 
   /**
@@ -484,7 +484,7 @@ class Yext {
    * @throws \Throwable
    */
   public function yextNodeType() : string {
-    return $this->stateGet('drupal_yext_node_type', 'YourNodeType');
+    return $this->configGet('target_node_type', 'article');
   }
 
 }

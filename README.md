@@ -8,15 +8,23 @@ A Drupal 8 module which allows you to import data from Yext.
 Usage
 -----
 
-Step 1: Install as you would any Drupal module:
+### Step 1: Install as you would any Drupal module:
 
     drush dl drupal_yext
 
-Step 2: Configure Drupal Yext at:
+### Step 2: Make sure you have a node in which to save Yext data:
 
-    /admin/config/yext/yext
+Each Yext record will create a new node. Make sure you create a node type which will correspond to Yext records, and a field which will contain the Yext unique ID.
 
-Step 3: Import data using:
+For the sake of this example, we will use "article" as a node type, and, as a field, we will create a new field of type "Text (plain)" in article with the machine name "field_yext_unique_id".
+
+### Step 2: Configure Drupal Yext:
+
+Go to /admin/config/yext/yext, and do the follwoing
+
+
+
+### Step 3: Import data using:
 
     drush ev \'drupal_yext_import_some()\'"
 
