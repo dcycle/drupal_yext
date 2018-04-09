@@ -245,7 +245,7 @@ HEREDOC
    * @throws Exception
    */
   public function yext() : Yext {
-    return DrupalYext::instance()->yext();
+    return Yext::instance()->yext();
   }
 
   /**

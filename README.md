@@ -12,6 +12,10 @@ Step 1: Install as you would any Drupal module:
 
     drush dl drupal_yext
 
+Step 2: Configure Drupal Yext at:
+
+    /admin/config/yext/yext
+
 Step 3: Import data using:
 
     drush ev \'drupal_yext_import_some()\'"
