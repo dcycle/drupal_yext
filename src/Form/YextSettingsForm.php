@@ -41,8 +41,9 @@ class YextSettingsForm extends FormBase {
   public function ajaxYextTest(array $form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
     $ajax_response = new AjaxResponse();
-    $ajax_response->addCommand(new HtmlCommand('#check-icon-wrapper', $this->yextTestIcon($input['DrupalYext_yextapi'])));
-    $ajax_response->addCommand(new HtmlCommand('#ajax-yext-test', $this->yextTestString($input['DrupalYext_yextapi'])));
+    $ajax_response->addCommand(new HtmlCommand('#check-icon-wrapper', $this->yextTestIcon($input['DrupalYext_yextapi'], $input['DrupalYext_yextaccount'], $input['DrupalYext_yextbase'])));
+    $ajax_response->addCommand(new HtmlCommand('#ajax-yext-test', $this->yextTestString($input['DrupalYext_yextapi'], $input['DrupalYext_yextaccount'], $input['DrupalYext_yextbase'])));
+    $ajax_response->addCommand(new HtmlCommand('#ajax-yext-more', $this->yextTestStringMore($input['DrupalYext_yextapi'], $input['DrupalYext_yextaccount'], $input['DrupalYext_yextbase'])));
     return $ajax_response;
   }
 
@@ -97,9 +98,15 @@ class YextSettingsForm extends FormBase {
     );
     $form['yextbase']['DrupalYextBase.uniqueidfield'] = array(
       '#type' => 'textfield',
-      '#title' => $this->t('The target field ID'),
+      '#title' => $this->t('The target ID field'),
       '#description' => $this->t('Something like "field_yext_id". This is not validated, so please make sure it exists.'),
       '#default_value' => $this->yext()->uniqueYextIdFieldName(),
+    );
+    $form['yextbase']['DrupalYextBase.uniquelastupdatedfield'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('The target "last updated" field'),
+      '#description' => $this->t('Something like "field_yext_last_updated". This is not validated, so please make sure it exists.'),
+      '#default_value' => $this->yext()->uniqueYextLastUpdatedFieldName(),
     );
     try {
       $form['yext'] = array(
@@ -126,6 +133,13 @@ class YextSettingsForm extends FormBase {
         '#description' => $this->t('YYYY-MM-DD; this is set automatically during normal operation.'),
         '#default_value' => $this->yext()->nextDateToImport('Y-m-d'),
       );
+      $acct = $this->yext()->accountNumber();
+      $form['yext']['DrupalYext.yextaccount'] = array(
+        '#type' => 'textfield',
+        '#title' => $this->t('Yext account number'),
+        '#description' => $this->t('This is something like 123456 or, if you have only one account, "me".'),
+        '#default_value' => $acct,
+      );
       $key = $this->yext()->apiKey();
       $form['yext']['DrupalYext.yextapi'] = array(
         '#type' => 'password',
@@ -134,6 +148,7 @@ class YextSettingsForm extends FormBase {
         '#default_value' => $key,
       );
       $checkmessage = $this->yextTestString();
+      $checkmessagemore = $this->yextTestStringMore();
       $icon = $this->yextTestIcon();
       $form['yext']['DrupalYext.ajaxYextTest'] = array(
         '#type' => 'button',
@@ -155,7 +170,7 @@ class YextSettingsForm extends FormBase {
     <span class="system-status-counter__title-count"><span class="yext-ajaxy" id="ajax-yext-test">$checkmessage</span>&nbsp;<span>
 HEREDOC
         ,
-        '#suffix' => '</span></span></span></span></span>',
+        '#suffix' => '</span></span></span></span></span><div id="ajax-yext-more">' . $checkmessagemore . '</div>',
       );
     }
     catch (\Throwable $t) {
@@ -229,6 +244,8 @@ HEREDOC
     $input = $form_state->getUserInput();
     $this->yext()->setNodeType($input['DrupalYextBase_nodetype']);
     $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase_uniqueidfield']);
+    $this->yext()->setUniqueYextLastUpdatedFieldName($input['DrupalYextBase_uniquelastupdatedfield']);
+    $this->yext()->accountNumber($input['DrupalYext_yextaccount']);
     $this->yext()->apiKey($input['DrupalYext_yextapi']);
     $this->yext()->base($input['DrupalYext_yextbase']);
     $this->yext()->setNextDate($input['DrupalYext_yextnext']);
@@ -252,12 +269,16 @@ HEREDOC
    *
    * @param string $key
    *   An API key to use.
+   * @param string $account
+   *   An account to use.
+   * @param string $base
+   *   A Yext base URL.
    *
    * @return string
    *   HTML markup for the icon.
    */
-  public function yextTestIcon(string $key = '') : string {
-    $yext_test = $this->yext()->test($key);
+  public function yextTestIcon(string $key = '', string $account = '', string $base = '') : string {
+    $yext_test = $this->yext()->test($key, $account, $base);
     if (!empty($yext_test['success'])) {
       $class = 'checked';
     }
@@ -272,17 +293,44 @@ HEREDOC
    *
    * @param string $key
    *   An API key to use.
+   * @param string $account
+   *   An account to use.
+   * @param string $base
+   *   A Yext base URL.
    *
    * @return string
    *   A string.
    */
-  public function yextTestString(string $key = '') : string {
-    $yext_test = $this->yext()->test($key);
+  public function yextTestString(string $key = '', string $account = '', string $base = '') : string {
+    $yext_test = $this->yext()->test($key, $account, $base);
     if (isset($yext_test['message']) && is_string($yext_test['message'])) {
       return $yext_test['message'];
     }
     else {
       return 'Please make sure Yext::test() returns an array with a message key, not ' . serialize($yext_test);
+    }
+  }
+
+  /**
+   * Return more information about the Yext server test.
+   *
+   * @param string $key
+   *   An API key to use.
+   * @param string $account
+   *   An account to use.
+   * @param string $base
+   *   A Yext base URL.
+   *
+   * @return string
+   *   A string.
+   */
+  public function yextTestStringMore(string $key = '', string $account = '', string $base = '') : string {
+    $yext_test = $this->yext()->test($key, $account, $base);
+    if (isset($yext_test['more']) && is_string($yext_test['more'])) {
+      return $yext_test['more'];
+    }
+    else {
+      return 'Please make sure Yext::test() returns an array with a "more" key, not ' . serialize($yext_test);
     }
   }
 

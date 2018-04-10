@@ -1,9 +1,8 @@
 <?php
 
-namespace Drupal\drupal_yext\Yext;
+namespace Drupal\drupal_yext\YextContent;
 
 use Drupal\drupal_yext\traits\CommonUtilities;
-use Drupal\drupal_yext\YextContent\NodeMigrateSourceInterface;
 
 /**
  * Represents a Node on the Yext API.

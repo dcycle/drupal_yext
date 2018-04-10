@@ -17,20 +17,74 @@ use Drupal\Core\Utility\Error;
 trait CommonUtilities {
 
   /**
+   * Get an arbitrary element from an nested associative array.
+   *
+   * @param array $array
+   *   An associative array such as [a => [b => c]].
+   * @param string $type
+   *   The expected type of c.
+   * @param array $keys
+   *   The path to the data we want, for example [a, b].
+   * @param mixed $default
+   *   The default value in case there is no available data. This should
+   *   be the same type as $type, and will be ignored if $required is
+   *   TRUE.
+   * @param bool $required
+   *   Whether or not the data is required to be present and non-empty.
+   * @param string $required_message
+   *   A message to add to the exception in case the data is not
+   *   present but required.
+   *
+   * @return mixed
+   *   Data of type $type.
+   *
+   * @throws \Exception
+   */
+  public function assocArrayElem(array $array, string $type, array $keys, $default, bool $required = FALSE, string $required_message = '') {
+    $default_type = gettype($default);
+    if ($default_type != $type) {
+      throw new \Exception('Default value type is ' . $default_type . ', not ' . $type);
+    }
+    $structure = $array;
+    foreach ($keys as $key) {
+      if (!is_array($structure)) {
+        throw new \Exception('We are expecting ' . $key . ' to be an array, it is ' . gettype($structure));
+      }
+      if (empty($structure[$key])) {
+        if ($required) {
+          throw new \Exception('Required keys ' . implode(', ', $keys) . ' not present in array. ' . $required_message);
+        }
+        $structure = $default;
+        break;
+      }
+      $structure = $structure[$key];
+    }
+    $mytype = gettype($structure);
+    if ($mytype != $type) {
+      throw new \Exception('The return structure is ' . $mytype . ', not ' . $type);
+    }
+    return $structure;
+  }
+
+  /**
    * Checks to make sure a server is available.
    *
    * @param string $server
    *   A server such as http://drupal.
+   * @param string $message
+   *   Will be filled with the error message if there is one.
    *
    * @return bool
    *   Whether the server is accessible.
    */
-  public function checkServer(string $server) : bool {
+  public function checkServer(string $server, string &$message = '') : bool {
     try {
-      $this->httpGet($server);
+      $response = serialize($this->httpGet($server));
+      $message = 'Call to server resulted in ' . $response;
       return TRUE;
     }
     catch (\Throwable $t) {
+      $message = $t->getMessage();
       $this->watchdogThrowable($t);
       return FALSE;
     }
@@ -50,6 +104,18 @@ trait CommonUtilities {
   public function configSet($variable, $value) {
     $config = \Drupal::service('config.factory')->getEditable('drupal_yext.general.settings');
     $config->set($variable, $value)->save();
+  }
+
+  /**
+   * Mockable wrapper around date().
+   */
+  public function date(string $format, $timestamp = NULL) : string {
+    if ($timestamp === NULL) {
+      return date($format);
+    }
+    else {
+      return date($format, $timestamp);
+    }
   }
 
   /**

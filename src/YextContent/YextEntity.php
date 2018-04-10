@@ -1,12 +1,15 @@
 <?php
 
-namespace Drupal\drupal_yext;
+namespace Drupal\drupal_yext\YextContent;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\drupal_yext\traits\CommonUtilities;
 
 /**
  * Represents a Yext-specific entity, wrapper around Drupal entities.
+ *
+ * Any Drupal node which has a corresponding Yext entity can be
+ * represented as a subclass of this, for example, see YextTargetNode.
  */
 class YextEntity {
 

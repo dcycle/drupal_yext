@@ -17,6 +17,19 @@ class Yext {
   use CommonUtilities;
 
   /**
+   * Yext account number getter/setter.
+   *
+   * @param string $acct
+   *   An account number provided by Yext.
+   */
+  public function accountNumber(string $acct = '') : string {
+    if (!empty($acct)) {
+      $this->stateSet('drupal_yext_acct', $acct);
+    }
+    return $this->stateGet('drupal_yext_acct', 'me');
+  }
+
+  /**
    * Given a URL, adds filters.
    *
    * @param string $url
@@ -79,26 +92,31 @@ class Yext {
    *
    * @param string $path
    *   For example /v2/api/...
+   *   Any instance of /me/ will be replaced with the actual account.
    * @param string $key
    *   A key to use, defaults to the saved API key.
    * @param array $filters
    *   Filters as per the API documentation.
    * @param int $offset
    *   The offset.
+   * @param string $base
+   *   The base URL to use; if empty use the base URL in memory..
    *
    * @return string
    *   A URL.
    *
    * @throws Exception
    */
-  public function buildUrl(string $path, string $key = '', array $filters = [], int $offset = 0) : string {
+  public function buildUrl(string $path, string $key = '', array $filters = [], int $offset = 0, string $base = '') : string {
     $key2 = $key ?: $this->apiKey();
+    $base2 = $base ?: $this->base();
+    $path2 = str_replace('/me/', '/' . $this->accountNumber() . '/', $path);
 
     if (!$key2) {
       throw new \Exception('We are attempting to build a URL for Yext with an empty key; this will always fail.');
     }
 
-    $return = $this->base() . $path . '?limit=50&offset=' . $offset . '&api_key=' . $key2 . '&v=' . $this->apiVersion();
+    $return = $base2 . $path2 . '?limit=50&offset=' . $offset . '&api_key=' . $key2 . '&v=' . $this->apiVersion();
     $return2 = $this->addFilters($return, $filters);
     $for_the_log = str_replace($key2, 'YOUR-API-KEY', $return2);
     $this->watchdog('Yext: built url ' . $for_the_log);
@@ -185,10 +203,8 @@ class Yext {
 
     // Walk through all items from yext.
     foreach ($array as $item) {
-
       // Wrap the item in a YextSourceRecord object for manipulation.
       $source = new YextSourceRecord($item);
-
       // If a node already exists, use that one; otherwise create a new one.
       // This ensures that we should never have two nodes with the same
       // Yext ID.
@@ -352,7 +368,7 @@ class Yext {
    * @throws Exception
    */
   public function queryYext($date, $date2, $offset = 0) : array {
-    $url = $this->buildUrl('/v2/accounts/me/locationsearch', '', [
+    $url = $this->buildUrl('/v2/accounts/me/locations', '', [
       [
         'lastUpdated' => [
           'between' => [
@@ -418,31 +434,56 @@ class Yext {
   }
 
   /**
+   * Set the field name which contains the Yext last updated time.
+   *
+   * @param string $field
+   *   The field such as 'field_something'.
+   */
+  public function setUniqueYextLastUpdatedFieldName(string $field) {
+    $this->configSet('target_unique_last_updated_field', $field);
+  }
+
+  /**
    * Test the connection to Yext.
    *
    * @param string $key
    *   The API key to use; if empty use the api key in memory.
+   * @param string $account
+   *   The account number to use; if empty use the account in memory.
+   * @param string $base
+   *   The base URL to use; if empty use the base URL in memory.
    *
    * @return array
    *   An array with two keys, success and message.
    */
-  public function test(string $key = '') : array {
-    $key2 = $key ?: 'default';
+  public function test(string $key = '', string $account = '', string $base = '') : array {
+    $key2 = $key ?: $this->apiKey();
+    $acct2 = $account ?: $this->accountNumber();
+    $base2 = $base ?: $this->base();
     static $return;
-    if (!empty(($return[$key2]))) {
-      return $return[$key2];
+    if (!empty(($return[$base2][$acct2][$key2]))) {
+      return $return[$base2][$acct2][$key2];
     }
     try {
-      $return[$key2]['success'] = $this->checkServer($this->buildUrl('/v2/accounts/me/locations', $key));
+      $message = '';
+      $return[$base2][$acct2][$key2]['success'] = $this->checkServer($this->buildUrl('/v2/accounts/' . $acct2 . '/locations', $key2, [], 0, $base2), $message);
+      if (!$return[$base2][$acct2][$key2]['success']) {
+        $return[$base2][$acct2][$key2]['message'] = 'Connection failed';
+      }
+      $return[$base2][$acct2][$key2]['more'] = $message;
     }
     catch (\Exception $e) {
-      $return[$key2] = [
+      $return[$base2][$acct2][$key2] = [
         'success' => FALSE,
-        'message' => $e->getMessage(),
+        'message' => 'Exception thrown while connecting',
+        'more' => $e->getMessage(),
       ];
     }
-    $return[$key2]['message'] = $return[$key2]['success'] ? 'Connection successful' : 'Connection failed, check API key.';
-    return $return[$key2];
+    if ($return[$base2][$acct2][$key2]['success']) {
+      $return[$base2][$acct2][$key2]['message'] = 'Connection successful';
+    }
+    $return[$base2][$acct2][$key2]['more'] = str_replace($key2, 'API-KEY-HIDDEN-FOR-SECURITY', $return[$base2][$acct2][$key2]['more']);
+    return $return[$base2][$acct2][$key2];
   }
 
   /**
@@ -455,6 +496,18 @@ class Yext {
    */
   public function uniqueYextIdFieldName() : string {
     return $this->configGet('target_unique_id_field', 'field_yext_unique_id');
+  }
+
+  /**
+   * The Drupal field name which contains the Yext last updated info.
+   *
+   * @return string
+   *   A field name such as 'field_yext_last_updated.
+   *
+   * @throws \Throwable
+   */
+  public function uniqueYextLastUpdatedFieldName() : string {
+    return $this->configGet('target_unique_last_updated_field', 'field_yext_last_updated');
   }
 
   /**

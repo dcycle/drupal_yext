@@ -1,9 +1,10 @@
 <?php
 
-namespace Drupal\drupal_yext;
+namespace Drupal\drupal_yext\YextContent;
 
 use Drupal\drupal_yext\traits\Singleton;
-use Drupal\drupal_yext\YextContent\YextTargetNode;
+use Drupal\Core\Entity\Entity;
+use Drupal\node\Entity\Node;
 
 /**
  * An entity factory. Returns an object to manipulate Drupal entities.
@@ -11,6 +12,29 @@ use Drupal\drupal_yext\YextContent\YextTargetNode;
 class YextEntityFactory {
 
   use Singleton;
+
+  /**
+   * Given a Drupal entity, return a Yext Entity.
+   *
+   * @param Entity $entity
+   *   A Drupal entity.
+   *
+   * @return StewardEntity
+   *   A Steward entity, a class with more Steward-specific functionality.
+   *
+   * @throws Exception
+   */
+  public function entity(Entity $entity) : YextEntity {
+    if (is_a($entity, Node::class)) {
+      $class = YextTargetNode::class;
+    }
+    else {
+      $class = YextEntity::class;
+    }
+    $return = new $class();
+    $return->setEntity($entity);
+    return $return;
+  }
 
   /**
    * Generates a new entity, and saves it.
