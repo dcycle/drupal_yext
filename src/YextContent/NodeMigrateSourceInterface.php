@@ -38,14 +38,17 @@ interface NodeMigrateSourceInterface {
   public function getName() : string;
 
   /**
-   * Get a profile link.
+   * Get a custom field.
+   *
+   * @param string $id
+   *   A field ID.
    *
    * @return string
-   *   A profile link, or empty string.
+   *   A value, or empty string.
    *
    * @throws \Throwable
    */
-  public function getProfileLink() : string;
+  public function getCustom(string $id) : string;
 
   /**
    * Get a unique Yext ID.

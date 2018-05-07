@@ -56,14 +56,26 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    * {@inheritdoc}
    */
   public function setBio(string $bio) {
-    // TODO.
+    $this->drupal_entity->{$this->fieldmap()->bio()} = [
+      'value' => $bio,
+      'format' => 'basic_html',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCustom(string $id, string $value) {
+    $this->drupal_entity->set($id, $value);
   }
 
   /**
    * {@inheritdoc}
    */
   public function setHeadshot(string $url) {
-    // TODO.
+    if ($url) {
+      $this->imageFromWebToField($url, $this->drupal_entity, $this->fieldmap()->headshot());
+    }
   }
 
   /**
@@ -71,13 +83,6 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    */
   public function setName(string $name) {
     $this->drupal_entity->setTitle($name);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setProfileLink(string $url) {
-    // TODO.
   }
 
   /**
@@ -98,7 +103,7 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    * {@inheritdoc}
    */
   public function setYextRawData(string $data) {
-    // TODO.
+    $this->drupal_entity->set($this->fieldmap()->raw(), $data);
   }
 
 }

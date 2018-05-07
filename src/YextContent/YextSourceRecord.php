@@ -9,8 +9,6 @@ use Drupal\drupal_yext\traits\CommonUtilities;
  */
 class YextSourceRecord implements NodeMigrateSourceInterface {
 
-  const PROFILE_LINK_CUSTOM_FIELD = 12819;
-
   use CommonUtilities;
 
   /**
@@ -33,6 +31,13 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
   /**
    * {@inheritdoc}
    */
+  public function getCustom(string $id) : string {
+    return $this->parseElem('string', ['customFields', $id], '');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getHeadshot() : string {
     return $this->parseElem('string', ['headshot', 'url'], '');
   }
@@ -42,13 +47,6 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    */
   public function getName() : string {
     return $this->parseElem('string', ['locationName'], '');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getProfileLink() : string {
-    return $this->parseElem('string', ['customFields', self::PROFILE_LINK_CUSTOM_FIELD], '');
   }
 
   /**

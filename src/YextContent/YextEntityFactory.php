@@ -19,8 +19,8 @@ class YextEntityFactory {
    * @param Entity $entity
    *   A Drupal entity.
    *
-   * @return StewardEntity
-   *   A Steward entity, a class with more Steward-specific functionality.
+   * @return YextEntity
+   *   A Yext-specific wrapper for a Drupal entity.
    *
    * @throws Exception
    */

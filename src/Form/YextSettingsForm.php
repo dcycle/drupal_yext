@@ -79,6 +79,9 @@ class YextSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    foreach ($this->fieldmap()->errors() as $error) {
+      $this->drupalSetMessage($error['text'], 'error');
+    }
     $form = [];
     $form['#attached']['library'][] = 'drupal_yext/ajaxy';
     $form['yextbase'] = [
@@ -228,6 +231,7 @@ HEREDOC
     catch (\Throwable $t) {
       $this->watchdogThrowable($t);
     }
+    $this->formAddMappingSection($form);
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = array(
       '#type' => 'submit',
@@ -238,12 +242,55 @@ HEREDOC
   }
 
   /**
+   * Helper function to add a "mapping" section to the form.
+   *
+   * @param array $form
+   *   The form object.
+   */
+  public function formAddMappingSection(array &$form) {
+    $form['fieldmapping'] = array(
+      '#type' => 'details',
+      '#title' => $this->t('Yext field mapping'),
+      '#description' => $this->t('Map Yext API fields to Drupal fields.'),
+      '#open' => FALSE,
+    );
+    $form['fieldmapping']['headshot'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Headshot image field'),
+      '#description' => $this->t('The headshot image field which should exist for node type mapped to Yext, for example field_yext_headshot.'),
+      '#default_value' => $this->fieldmap()->headshot(),
+    );
+    $form['fieldmapping']['bio'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Bio formatted text field'),
+      '#description' => $this->t('The bio formatted text field which should exist for node type mapped to Yext, for example "body".'),
+      '#default_value' => $this->fieldmap()->bio(),
+    );
+    $form['fieldmapping']['raw'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Raw long plain text field'),
+      '#description' => $this->t('The raw long plain text field which should exist for node type mapped to Yext, for example field_yext_raw.'),
+      '#default_value' => $this->fieldmap()->raw(),
+    );
+    $form['fieldmapping']['yextfieldmapping'] = array(
+      '#type' => 'textarea',
+      '#title' => $this->t('Yext field mapping'),
+      '#description' => $this->t('Enter Yext field mapping which you get from your Yext account manager or from the API using the technique outlined at http://developer.yext.com/docs/api-reference/#operation/getCustomFields. Please use the format <code>"1234","field_drupal_field","description"</code><br/><code>"2345",,"this is not mapped to drupal but exists in yext"</code>'),
+      '#default_value' => $this->fieldmap()->fieldMapping(),
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
     $this->yext()->setNodeType($input['DrupalYextBase_nodetype']);
     $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase_uniqueidfield']);
+    $this->fieldmap()->setFieldMapping($input['yextfieldmapping']);
+    $this->fieldmap()->setRaw($input['raw']);
+    $this->fieldmap()->setBio($input['bio']);
+    $this->fieldmap()->setHeadshot($input['headshot']);
     $this->yext()->setUniqueYextLastUpdatedFieldName($input['DrupalYextBase_uniquelastupdatedfield']);
     $this->yext()->accountNumber($input['DrupalYext_yextaccount']);
     $this->yext()->apiKey($input['DrupalYext_yextapi']);

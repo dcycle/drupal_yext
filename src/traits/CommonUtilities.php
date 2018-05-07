@@ -2,11 +2,17 @@
 
 namespace Drupal\drupal_yext\traits;
 
+use Drupal\drupal_yext\Yext\FieldMapper;
 use Drupal\drupal_yext\Yext\Yext;
+use Drupal\Core\Entity\Entity;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Utility\Error;
+// @codingStandardsIgnoreStart
+use Drupal\node\NodeTypeInterface;
+// @codingStandardsIgnoreEnd
+use Drupal\node\Entity\NodeType;
 
 /**
  * General utilities trait.
@@ -126,12 +132,69 @@ trait CommonUtilities {
   }
 
   /**
+   * Wrap \Drupal::service('entity_field.manager')->getFieldDefinitions().
+   */
+  public function fieldDefinitions(string $entity_type, string $bundle) {
+    $entityManager = \Drupal::service('entity_field.manager');
+    return $entityManager->getFieldDefinitions($entity_type, $bundle);
+  }
+
+  /**
+   * Get the field mapping singleton.
+   *
+   * @return FieldMapper
+   *   The field mapper singleton.
+   */
+  public function fieldmap() : FieldMapper {
+    return FieldMapper::instance();
+  }
+
+  /**
    * Mockable wrapper around \Drupal::httpClient()->get().
    */
   public function httpGet($uri, $options = []) {
     $this->watchdog('Making request to ' . $uri . ' with the following options:');
     $this->watchdog(serialize($options));
     return \Drupal::httpClient()->get($uri, $options);
+  }
+
+  /**
+   * Get an image from the web and save it in a file.
+   *
+   * This code is partially based on code in the stage_file_proxy module.
+   * See also
+   *  http://realityloop.com/blog/2015/10/08/programmatically-attach-files-node-drupal-8
+   *
+   * @param string $url
+   *   An URL which contains an image.
+   * @param Entity $entity
+   *   A Drupal entity.
+   * @param string $field_name
+   *   An image field on the entity.
+   *
+   * @throws Exception
+   */
+  public function imageFromWebToField(string $url, Entity $entity, string $field_name) {
+    $response = $this->httpGet($url);
+    $response_code = $response->getStatusCode();
+    if ($response_code != 200) {
+      throw new \Exception($url . ' results in response code ' . $response_code);
+    }
+    $response_headers = $response->getHeaders();
+    $header_length = array_shift($response_headers['Content-Length']);
+    $header_type = array_shift($response_headers['Content-Type']);
+    $content = $response->getBody()->getContents();
+    $content_length = strlen($content);
+    if (!in_array($header_type, ['image/jpeg', 'image/png'])) {
+      throw new \Exception($header_type . ' is unrecognized.');
+    }
+    if ($header_length != $content_length) {
+      throw new \Exception('Possible incomplete download: ' . $content_length . ' bytes downloaded, ' . $header_length . ' expected.');
+    }
+
+    $file = file_save_data($content, 'public://' . $entity->uuid() . '.' . str_replace('image/', '', $header_type), FILE_EXISTS_REPLACE);
+
+    $entity->set($field_name, $file);
   }
 
   /**
@@ -149,6 +212,19 @@ trait CommonUtilities {
   }
 
   /**
+   * Wrapper around NodeType::load() which throws exception if no such type.
+   */
+  public function nodeTypeLoad(string $type) : NodeTypeInterface {
+    $return = NodeType::load($type);
+    if (!$return) {
+      throw new \Exception($this->t('Could not load node type @t.', [
+        '@t' => $type,
+      ]));
+    }
+    return $return;
+  }
+
+  /**
    * Mockable wrapper around \Drupal::state()->get().
    */
   public function stateGet($variable, $default = NULL) {
@@ -163,6 +239,17 @@ trait CommonUtilities {
   }
 
   /**
+   * Mockable wrapper around t().
+   *
+   * See that function for details.
+   */
+  public function t($string, array $args = [], array $options = []) {
+    // @codingStandardsIgnoreStart
+    return t($string, $args, $options);
+    // @codingStandardsIgnoreEnd
+  }
+
+  /**
    * Log a string to the watchdog.
    *
    * @param string $string
@@ -171,7 +258,7 @@ trait CommonUtilities {
    * @throws Exception
    */
   public function watchdog(string $string) {
-    \Drupal::logger('steward_common')->notice($string);
+    \Drupal::logger('drupal_yext')->notice($string);
   }
 
   /**
@@ -183,7 +270,7 @@ trait CommonUtilities {
    * @throws Exception
    */
   public function watchdogError(string $string) {
-    \Drupal::logger('steward_common')->error($string);
+    \Drupal::logger('drupal_yext')->error($string);
   }
 
   /**
@@ -205,7 +292,7 @@ trait CommonUtilities {
 
     $variables += Error::decodeException($t);
 
-    \Drupal::logger('steward_common')->log($severity, $message, $variables);
+    \Drupal::logger('drupal_yext')->log($severity, $message, $variables);
   }
 
   /**
