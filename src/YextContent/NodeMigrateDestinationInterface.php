@@ -48,24 +48,16 @@ interface NodeMigrateDestinationInterface {
   public function setName(string $name);
 
   /**
-   * Set a profile link.
-   *
-   * @param string $url
-   *   A profile link, or empty string.
-   *
-   * @throws \Throwable
-   */
-  public function setProfileLink(string $url);
-
-  /**
-   * Set a unique Yext ID.
+   * Set a custom field.
    *
    * @param string $id
-   *   A unique Yext ID, or empty string.
+   *   A field name.
+   * @param string $value
+   *   A value.
    *
    * @throws \Throwable
    */
-  public function setYextId(string $id);
+  public function setCustom(string $id, string $value);
 
   /**
    * Set the last time Yext was updated or synchronized.
