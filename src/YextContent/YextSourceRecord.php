@@ -32,7 +32,7 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    * {@inheritdoc}
    */
   public function getCustom(string $id) : string {
-    if (is_numeric($id) {
+    if (is_numeric($id)) {
       return $this->parseElem('string', ['customFields', $id], '');
     }
     else {
