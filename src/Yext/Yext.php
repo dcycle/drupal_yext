@@ -2,11 +2,14 @@
 
 namespace Drupal\drupal_yext\Yext;
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\Entity\Node;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\NodeMigrator;
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
+use Drupal\drupal_yext\YextContent\YextSourceRecordFactory;
 
 /**
  * Represents the Yext API.
@@ -144,6 +147,23 @@ class Yext {
   }
 
   /**
+   * Testable implementation of hook_entity_presave().
+   */
+  public function hookEntityPresave(EntityInterface $entity) {
+    try {
+      $dest = YextEntityFactory::instance()->destinationIfLinkedToYext($entity);
+      $source = YextSourceRecordFactory::instance()->sourceRecord($dest->getYextRawDataArray());
+      $migrator = new NodeMigrator($source, $dest);
+      // Migrating will do nothing if the dest and source are set to
+      // "ignore"-type classes.
+      $migrator->migrate();
+    }
+    catch (\Throwable $t) {
+      $this->watchdogThrowable($t);
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function hookRequirements($phase) : array {
@@ -210,11 +230,13 @@ class Yext {
       // Yext ID.
       $destination = empty($nodes[$source->getYextId()]) ? YextEntityFactory::instance()->getOrCreateUniqueNode($this->yextNodeType(), $this->uniqueYextIdFieldName(), $source->getYextId()) : $nodes[$source->getYextId()];
 
-      $migrator = new NodeMigrator($source, $destination);
+      $migrator = new DirectNodeMigrator($source, $destination);
       try {
-        $migrator->migrate();
-        $destination->save();
-        $this->watchdog('Yext: migrated ' . $source->getYextId() . ' to ' . $destination->id());
+        if ($migrator->migrate()) {
+          $destination->save();
+          $this->watchdog('Yext: migrated ' . $source->getYextId() . ' to ' . $destination->id());
+        }
+        $this->watchdog('Yext: did not remigrate ' . $source->getYextId() . ' to ' . $destination->id() . ' because it purportedly was already migrated.');
         $this->incrementSuccess();
       }
       catch (\Throwable $t) {
@@ -393,6 +415,21 @@ class Yext {
   }
 
   /**
+   * See ./README.md for how this works.
+   *
+   * @param string $log_function
+   *   A log function such as 'print_r'.
+   */
+  public function resaveAllExisting(string $log_function = 'print_r') {
+    $nids = \Drupal::entityQuery('node')->condition('type', $this->yextNodeType())->execute();
+    $nodes = Node::loadMultiple($nids);
+    foreach ($nodes as $node) {
+      $log_function('resaving existing node ' . $node->id() . PHP_EOL);
+      $node->save();
+    }
+  }
+
+  /**
    * Reset everything to factory defaults.
    */
   public function resetAll() {
@@ -526,18 +563,6 @@ class Yext {
     else {
       $this->watchdog('Yext: could not figure out the remaining nodes.');
     }
-  }
-
-  /**
-   * The Drupal node type which will be populated by Yext data.
-   *
-   * @return string
-   *   A node type such as 'article'.
-   *
-   * @throws \Throwable
-   */
-  public function yextNodeType() : string {
-    return $this->configGet('target_node_type', 'article');
   }
 
 }

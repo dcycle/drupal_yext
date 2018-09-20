@@ -2,8 +2,10 @@
 
 namespace Drupal\drupal_yext\YextContent;
 
+use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
 
 /**
@@ -11,7 +13,36 @@ use Drupal\node\Entity\Node;
  */
 class YextEntityFactory {
 
+  use CommonUtilities;
   use Singleton;
+
+  /**
+   * Get a NodeMigrateDestinationInterface based on an entity.
+   *
+   * If the entity does not have raw Yext data in it, ignore it.
+   *
+   * @param EntityInterface $entity
+   *   A Drupal entity.
+   *
+   * @return NodeMigrateDestinationInterface
+   *   A destination for migration.
+   *
+   * @throws \Throwable
+   */
+  public function destinationIfLinkedToYext(EntityInterface $entity) : NodeMigrateDestinationInterface {
+    if ($entity->getEntityType()->id() != 'node') {
+      return new YextIgnoreNode();
+    }
+    if ($entity->getType() != $this->yextNodeType()) {
+      return new YextIgnoreNode();
+    }
+    $candidate = $this->entity($entity);
+    $raw = $candidate->fieldValue($this->fieldmap()->raw());
+    if (!$raw) {
+      return new YextIgnoreNode();
+    }
+    return $candidate;
+  }
 
   /**
    * Given a Drupal entity, return a Yext Entity.

@@ -41,6 +41,25 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getYextRawDataString() : string {
+    return $this->fieldValue($this->fieldmap()->raw());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getYextRawDataArray() : array {
+    $json = $this->getYextRawDataString();
+    $decoded = json_decode($json, TRUE);
+    if (!is_array($decoded)) {
+      return [];
+    }
+    return $decoded;
+  }
+
+  /**
    * Get the type of this node if possible.
    *
    * @return string

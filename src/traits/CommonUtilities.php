@@ -305,4 +305,16 @@ trait CommonUtilities {
     return Yext::instance();
   }
 
+  /**
+   * The Drupal node type which will be populated by Yext data.
+   *
+   * @return string
+   *   A node type such as 'article'.
+   *
+   * @throws \Throwable
+   */
+  public function yextNodeType() : string {
+    return $this->configGet('target_node_type', 'article');
+  }
+
 }
