@@ -25,7 +25,9 @@ class DirectNodeMigrator extends NodeMigrator {
     $to = $this->to;
     $from = $this->from;
     if ($to->getYextLastUpdate() != $from->getYextLastUpdate()) {
-      return parent::migrate();
+      $return = parent::migrate();
+      $this->to->save();
+      return $return;
     }
     return FALSE;
   }

@@ -233,11 +233,8 @@ class Yext {
 
       $migrator = new DirectNodeMigrator($source, $destination);
       try {
-        if ($migrator->migrate()) {
-          $destination->save();
-          $this->watchdog('Yext: migrated ' . $source->getYextId() . ' to ' . $destination->id());
-        }
-        $this->watchdog('Yext: did not remigrate ' . $source->getYextId() . ' to ' . $destination->id() . ' because it purportedly was already migrated.');
+        $result = $migrator->migrate() ? 'migration occurred' : 'migration skipped, probably becaue update time is identical in source/dest.';
+        $this->watchdog('Yext ' . $result . ' for '. $source->getYextId() . ' to ' . $destination->id());
         $this->incrementSuccess();
       }
       catch (\Throwable $t) {
