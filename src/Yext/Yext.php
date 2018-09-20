@@ -237,7 +237,9 @@ class Yext {
    */
   public function importFromArray(array $array) {
     $all_ids = [];
+    // @codingStandardsIgnoreStart
     array_walk($array, function ($item, $key) use (&$all_ids) {
+    // @codingStandardsIgnoreEnd
       if (isset($item['id'])) {
         $all_ids[$item['id']] = $item['id'];
       }
@@ -258,7 +260,7 @@ class Yext {
       $migrator = new DirectNodeMigrator($source, $destination);
       try {
         $result = $migrator->migrate() ? 'migration occurred' : 'migration skipped, probably becaue update time is identical in source/dest.';
-        $this->watchdog('Yext ' . $result . ' for '. $source->getYextId() . ' to ' . $destination->id());
+        $this->watchdog('Yext ' . $result . ' for ' . $source->getYextId() . ' to ' . $destination->id());
         $this->incrementSuccess();
       }
       catch (\Throwable $t) {
