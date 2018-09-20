@@ -138,6 +138,19 @@ class Yext {
   }
 
   /**
+   * See ./README.md for how this works.
+   *
+   * @param string $log_function
+   *   A log function such as 'print_r'.
+   */
+  public function deleteAllExisting(string $log_function = 'print_r') {
+    foreach ($this->getAllExisting() as $node) {
+      $log_function('permanently deleting node ' . $node->id() . PHP_EOL);
+      $node->save();
+    }
+  }
+
+  /**
    * Get total number of nodes having failed to import.
    *
    * @return int
@@ -145,6 +158,17 @@ class Yext {
    */
   public function failed() {
     return count($this->stateGet('drupal_yext_failed', []));
+  }
+
+  /**
+   * Get all existing nodes of the target type.
+   *
+   * @return array
+   *   Array of Drupal nodes.
+   */
+  public function getAllExisting() : array {
+    $nids = \Drupal::entityQuery('node')->condition('type', $this->yextNodeType())->execute();
+    return Node::loadMultiple($nids);
   }
 
   /**
@@ -419,9 +443,7 @@ class Yext {
    *   A log function such as 'print_r'.
    */
   public function resaveAllExisting(string $log_function = 'print_r') {
-    $nids = \Drupal::entityQuery('node')->condition('type', $this->yextNodeType())->execute();
-    $nodes = Node::loadMultiple($nids);
-    foreach ($nodes as $node) {
+    foreach ($this->getAllExisting() as $node) {
       $log_function('resaving existing node ' . $node->id() . PHP_EOL);
       $node->save();
     }
