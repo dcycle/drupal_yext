@@ -7,6 +7,7 @@ use Drupal\node\Entity\Node;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\NodeMigrator;
+use Drupal\drupal_yext\YextContent\DirectNodeMigrator;
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
 use Drupal\drupal_yext\YextContent\YextSourceRecordFactory;
@@ -214,7 +215,7 @@ class Yext {
     $all_ids = [];
     array_walk($array, function ($item, $key) use (&$all_ids) {
       if (isset($item['id'])) {
-        $all_ids[$item['id']] = $all_ids[$item['id']];
+        $all_ids[$item['id']] = $item['id'];
       }
     });
 
