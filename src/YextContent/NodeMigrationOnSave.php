@@ -9,7 +9,7 @@ use Drupal\drupal_yext\traits\CommonUtilities;
  *
  * Useful for importing nodes from Yext to Drupal.
  */
-class NodeMigrator {
+class NodeMigrationOnSave {
 
   use CommonUtilities;
 
@@ -45,7 +45,6 @@ class NodeMigrator {
     }
     $to->setYextId($from->getYextId());
     $to->setYextLastUpdate($from->getYextLastUpdate());
-    $to->setYextRawData($from->getYextRawData());
     return TRUE;
   }
 

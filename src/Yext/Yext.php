@@ -6,8 +6,8 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
-use Drupal\drupal_yext\YextContent\NodeMigrator;
-use Drupal\drupal_yext\YextContent\DirectNodeMigrator;
+use Drupal\drupal_yext\YextContent\NodeMigrationOnSave;
+use Drupal\drupal_yext\YextContent\NodeMigrationAtCreation;
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
 use Drupal\drupal_yext\YextContent\YextSourceRecordFactory;
@@ -146,7 +146,7 @@ class Yext {
   public function deleteAllExisting(string $log_function = 'print_r') {
     foreach ($this->getAllExisting() as $node) {
       $log_function('permanently deleting node ' . $node->id() . PHP_EOL);
-      $node->save();
+      $node->delete();
     }
   }
 
@@ -178,7 +178,7 @@ class Yext {
     try {
       $dest = YextEntityFactory::instance()->destinationIfLinkedToYext($entity);
       $source = YextSourceRecordFactory::instance()->sourceRecord($dest->getYextRawDataArray());
-      $migrator = new NodeMigrator($source, $dest);
+      $migrator = new NodeMigrationOnSave($source, $dest);
       // Migrating will do nothing if the dest and source are set to
       // "ignore"-type classes.
       $migrator->migrate();
@@ -257,7 +257,7 @@ class Yext {
       // Yext ID.
       $destination = empty($nodes[$source->getYextId()]) ? YextEntityFactory::instance()->getOrCreateUniqueNode($this->yextNodeType(), $this->uniqueYextIdFieldName(), $source->getYextId()) : $nodes[$source->getYextId()];
 
-      $migrator = new DirectNodeMigrator($source, $destination);
+      $migrator = new NodeMigrationAtCreation($source, $destination);
       try {
         $result = $migrator->migrate() ? 'migration occurred' : 'migration skipped, probably becaue update time is identical in source/dest.';
         $this->watchdog('Yext ' . $result . ' for ' . $source->getYextId() . ' to ' . $destination->id());
