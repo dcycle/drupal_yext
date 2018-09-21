@@ -53,6 +53,33 @@ class Yext {
   }
 
   /**
+   * Merge the user-defined filters with the internal lastUpdated filter.
+   *
+   * @param string $date
+   *   First date in range.
+   * @param string $date2
+   *   Last date in range.
+   *
+   * @return array
+   *   An array suitable for jsonization, to be passed as a "filter" get
+   *   parameter to Yext's API.
+   *
+   * @throws \Exception
+   */
+  public function allFilters($date, $date2) : array {
+    return array_merge([
+      [
+        'lastUpdated' => [
+          'between' => [
+            $date,
+            $date2,
+          ],
+        ],
+      ],
+    ], $this->filtersAsArray());
+  }
+
+  /**
    * Yext API key getter/setter.
    *
    * @param string $api
@@ -169,6 +196,64 @@ class Yext {
   public function getAllExisting() : array {
     $nids = \Drupal::entityQuery('node')->condition('type', $this->yextNodeType())->execute();
     return Node::loadMultiple($nids);
+  }
+
+  /**
+   * Get/set filters as text, with one per line.
+   *
+   * @param string $filters
+   *   Get filters such as: '[{"locationType":{"is":[2]}}]'. One per
+   *   line.
+   *
+   * @return string
+   *   The filters as config text.
+   */
+  public function filtersAsText(string $filters = '') : string {
+    if (!empty($filters)) {
+      $this->configSet('drupal_yext_filters', $filters);
+    }
+    return $this->configGet('drupal_yext_filters', '');
+  }
+
+  /**
+   * Get one filter as an array.
+   *
+   * @return array
+   *   The filter as an array.
+   *
+   * @throws \Exception
+   */
+  public function filterAsArray(string $filter) : array {
+    $return = @json_decode($filter, TRUE);
+    if (!is_array($return)) {
+      throw new \Exception('Cannot json decode: ' . $filter);
+    }
+    return $return;
+  }
+
+  /**
+   * Get get parameters as array.
+   *
+   * @return array
+   *   The get params as an array.
+   */
+  public function filtersAsArray() : array {
+    $return = [];
+    $as_string = $this->filtersAsText();
+    $as_array = explode(PHP_EOL, $as_string);
+    foreach ($as_array as $line) {
+      $line = trim($line);
+      if (!$line) {
+        continue;
+      }
+      try {
+        $return = array_merge($return, $this->filterAsArray($line));
+      }
+      catch (\Exception $e) {
+        $this->watchdogThrowable($e);
+      }
+    }
+    return $return;
   }
 
   /**
@@ -414,16 +499,7 @@ class Yext {
    * @throws Exception
    */
   public function queryYext($date, $date2, $offset = 0) : array {
-    $url = $this->buildUrl('/v2/accounts/me/locations', '', [
-      [
-        'lastUpdated' => [
-          'between' => [
-            $date,
-            $date2,
-          ],
-        ],
-      ],
-    ], $offset);
+    $url = $this->buildUrl('/v2/accounts/me/locations', '', $this->allFilters($date, $date2), $offset);
     $body = (string) $this->httpGet($url)->getBody();
     return json_decode($body, TRUE);
   }
