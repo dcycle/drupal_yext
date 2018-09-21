@@ -125,10 +125,16 @@ class YextSettingsForm extends FormBase {
       $form['yext']['DrupalYext.yextbase'] = array(
         '#type' => 'textfield',
         '#title' => $this->t('Yext base URL'),
-        '#description' => $this->t('Something like @b.', [
+        '#description' => $this->t('Something like @b. This is a state variable, not config, so it can differ between environments. Be careful to use the appropriate base for your needs: https://liveapi.yext.com and https://api.yext.com work differently, and this module has been tested especially with https://liveapi.yext.com.', [
           '@b' => $this->yext()->defaultBase(),
         ]),
         '#default_value' => $base,
+      );
+      $form['yext']['DrupalYext.filters'] = array(
+        '#type' => 'textarea',
+        '#title' => $this->t('Extra get parameters'),
+        '#description' => $this->t('One per line as per <a href="https://developer.yext.ca/docs/live-api" target="_blank">the API documenentaion</a>. One example of what to put here would be <code>[{"locationType":{"is":[2]}}]</code>. Every line should be in exactly that format. This is configuration, not a state variable, so you can management via config management between environments.'),
+        '#default_value' => $this->yext()->filtersAsText(),
       );
       $form['yext']['DrupalYext.yextnext'] = array(
         '#type' => 'textfield',
@@ -140,14 +146,14 @@ class YextSettingsForm extends FormBase {
       $form['yext']['DrupalYext.yextaccount'] = array(
         '#type' => 'textfield',
         '#title' => $this->t('Yext account number'),
-        '#description' => $this->t('This is something like 123456 or, if you have only one account, "me".'),
+        '#description' => $this->t('This is something like 123456 or, if you have only one account, "me". This is a state variable, not config, so it can differ between environments.'),
         '#default_value' => $acct,
       );
       $key = $this->yext()->apiKey();
       $form['yext']['DrupalYext.yextapi'] = array(
         '#type' => 'password',
         '#title' => $this->t('Yext API key'),
-        '#description' => '<strong>' . $this->t('For security reasons, you will not be able to see the API key even if it is entered.') . '</strong> ' . $this->t('Can be found in your "app" in the Yext developer console.'),
+        '#description' => '<strong>' . $this->t('For security reasons, you will not be able to see the API key even if it is entered.') . '</strong> ' . $this->t('Can be found in your "app" in the Yext developer console.') . $this->t('This is a state variable, not config, so it can differ between environments.'),
         '#default_value' => $key,
       );
       $checkmessage = $this->yextTestString();
@@ -183,7 +189,7 @@ HEREDOC
       $form['yextimport'] = array(
         '#type' => 'details',
         '#title' => $this->t('Yext import status'),
-        '#description' => $this->t('Assuming Yext integration works, this is where we are at in the import (imports are performed on cron runs).') . ' ' . $this->t('Imports some more data. Be careful using the Import more button because this can timeout with large amounts of data. It is recommended to use "drush ev \'drupal_yext_import_some()\'" on the command line for more heavy-duty imports.') . ' ' . $this->t('Resets the API importer to its initial state. Useful for testing.'),
+        '#description' => $this->t('Assuming Yext integration works, this is where we are at in the import (imports are performed on cron runs).') . ' ' . $this->t('Imports some more data. Be careful using the Import more button because this can timeout with large amounts of data. It is recommended to use "drush ev \'drupal_yext_import_some()\'" on the command line for more heavy-duty imports; the very first time you start importing content, you might to call that several times, for example: for i in `seq 1 100`; do drush ev "drupal_yext_import_some()"; echo $i; done.') . ' ' . $this->t('Resets the API importer to its initial state. Useful for testing.'),
         '#open' => FALSE,
       );
       $imported = $this->yext()->imported();
@@ -302,6 +308,7 @@ HEREDOC
     $this->yext()->accountNumber($input['DrupalYext_yextaccount']);
     $this->yext()->apiKey($input['DrupalYext_yextapi']);
     $this->yext()->base($input['DrupalYext_yextbase']);
+    $this->yext()->filtersAsText($input['DrupalYext_filters']);
     $this->yext()->setNextDate($input['DrupalYext_yextnext']);
     $this->drupalSetMessage($this->t('Settings saved successfully.'));
   }
