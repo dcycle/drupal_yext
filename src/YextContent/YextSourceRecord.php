@@ -54,10 +54,10 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    */
   public function getCustom(string $id) : string {
     if (is_numeric($id)) {
-      return $this->parseElem('string', ['customFields', $id], '');
+      return $this->parseElem('string', ['customFields', $id], '', FALSE, '', ['cast-as-type' => TRUE]);
     }
     else {
-      return $this->parseElem('string', [$id], '');
+      return $this->parseElem('string', explode('][', $id), '', FALSE, '', ['cast-as-type' => TRUE]);
     }
   }
 
@@ -97,10 +97,17 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
   }
 
   /**
-   * Wrapper around CommonUtilities::assocparseElem() using our structure.
+   * Wrapper around CommonUtilities::assocArrayElem() using our structure.
    */
-  public function parseElem(string $type, array $keys, $default, bool $required = FALSE, $required_message = '') : string {
-    return $this->assocArrayElem($this->structure, $type, $keys, $default, $required, $required_message);
+  public function parseElem(string $type, array $keys, $default, bool $required = FALSE, $required_message = '', $options = []) : string {
+    try {
+      $return = $this->assocArrayElem($this->structure, $type, $keys, $default, $required, $required_message, $options);
+    }
+    catch (\Throwable $t) {
+      $this->watchdogThrowable($t);
+      $return = $default;
+    }
+    return $return;
   }
 
 }

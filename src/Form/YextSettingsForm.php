@@ -287,7 +287,7 @@ HEREDOC
     $form['fieldmapping']['yextfieldmapping'] = array(
       '#type' => 'textarea',
       '#title' => $this->t('Yext field mapping'),
-      '#description' => $this->t('Enter Yext field mapping which you get from your Yext account manager or from the API using the technique outlined at http://developer.yext.com/docs/api-reference/#operation/getCustomFields. Please use the format <code>"1234","field_drupal_field","because 1234 is numeric we will look for it in the customFields section of the json object."</code><br/><code>"2345",,"this is not mapped to drupal but exists in yext"</code><br/><code>"address","field_address","because address is non-numeric, we will look for it in the root of the json object."</code>'),
+      '#description' => $this->t('Enter Yext field mapping which you get from your Yext account manager or from the API using the technique outlined at http://developer.yext.com/docs/api-reference/#operation/getCustomFields. Please use the format <code>"1234","field_drupal_field","because 1234 is numeric we will look for it in the customFields section of the json object."</code><br/><code>"2345",,"this is not mapped to drupal but exists in yext"</code><br/><code>"address","field_address","because address is non-numeric, we will look for it in the root of the json object."</code><br/><code>"closed][isClosed","field_closed","The ][ notation denotes we want the value of the isClosed key within the closed key, itself being an array."</code>'),
       '#default_value' => $this->fieldmap()->fieldMapping(),
     );
   }
