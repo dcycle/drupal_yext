@@ -40,13 +40,15 @@ trait CommonUtilities {
    * @param string $required_message
    *   A message to add to the exception in case the data is not
    *   present but required.
+   * @param array $options
+   *   Can contain cast-as-type (TRUE or FALSE, FALSE being default).
    *
    * @return mixed
    *   Data of type $type.
    *
-   * @throws \Exception
+   * @throws \Throwable
    */
-  public function assocArrayElem(array $array, string $type, array $keys, $default, bool $required = FALSE, string $required_message = '') {
+  public function assocArrayElem(array $array, string $type, array $keys, $default, bool $required = FALSE, string $required_message = '', array $options = []) {
     $default_type = gettype($default);
     if ($default_type != $type) {
       throw new \Exception('Default value type is ' . $default_type . ', not ' . $type);
@@ -67,7 +69,12 @@ trait CommonUtilities {
     }
     $mytype = gettype($structure);
     if ($mytype != $type) {
-      throw new \Exception('The return structure is ' . $mytype . ', not ' . $type);
+      if (!empty($options['cast-as-type'])) {
+        $structure = settype($structure, $type);
+      }
+      else {
+        throw new \Exception('The return structure is ' . $mytype . ', not ' . $type);
+      }
     }
     return $structure;
   }
