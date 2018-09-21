@@ -36,6 +36,7 @@ class NodeMigrationOnSave {
     $to = $this->to;
     $from = $this->from;
     $to->setBio($from->getBio());
+    $to->setGeo($from->getGeo());
     $to->setHeadshot($from->getHeadshot());
     $to->setName($from->getName());
     foreach ($this->fieldmap()->customFieldInfo() as $custom) {

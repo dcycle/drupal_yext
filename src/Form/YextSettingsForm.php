@@ -266,6 +266,12 @@ HEREDOC
       '#description' => $this->t('The bio formatted text field which should exist for node type mapped to Yext, for example "body".'),
       '#default_value' => $this->fieldmap()->bio(),
     );
+    $form['fieldmapping']['geo'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Geofield field'),
+      '#description' => $this->t('If you are using the geofield module (and its geoPHP dependency as explained on the project homepage) and have a geofield field (for example field_geofield) in your content type, you can populate it from Yext.'),
+      '#default_value' => $this->fieldmap()->geo(),
+    );
     $form['fieldmapping']['raw'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Raw long plain text field'),
@@ -289,6 +295,7 @@ HEREDOC
     $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase_uniqueidfield']);
     $this->fieldmap()->setFieldMapping($input['yextfieldmapping']);
     $this->fieldmap()->setRaw($input['raw']);
+    $this->fieldmap()->setGeo($input['geo']);
     $this->fieldmap()->setBio($input['bio']);
     $this->fieldmap()->setHeadshot($input['headshot']);
     $this->yext()->setUniqueYextLastUpdatedFieldName($input['DrupalYextBase_uniquelastupdatedfield']);

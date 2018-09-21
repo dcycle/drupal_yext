@@ -44,6 +44,16 @@ interface NodeMigrateDestinationInterface {
   public function setBio(string $bio);
 
   /**
+   * Set a geofield.
+   *
+   * @param array $geo
+   *   An array with, if possible, lat and lon keys.
+   *
+   * @throws \Throwable
+   */
+  public function setGeo(array $geo);
+
+  /**
    * Set a headshot.
    *
    * @param string $url

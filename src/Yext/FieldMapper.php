@@ -135,6 +135,16 @@ class FieldMapper {
   }
 
   /**
+   * The geo field name (requires the geofield module).
+   *
+   * @return string
+   *   Headshot field name.
+   */
+  public function geo() : string {
+    return $this->configGet('field_mapping_geo', '');
+  }
+
+  /**
    * The headshot field name.
    *
    * @return string
@@ -162,6 +172,16 @@ class FieldMapper {
    */
   public function setBio(string $value) {
     $this->configSet('field_mapping_bio', $value);
+  }
+
+  /**
+   * Set the geofield field name.
+   *
+   * @param string $value
+   *   Geofield field name.
+   */
+  public function setGeo(string $value) {
+    $this->configSet('field_mapping_geo', $value);
   }
 
   /**

@@ -31,6 +31,27 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
   /**
    * {@inheritdoc}
    */
+  public function getGeo() : array {
+    try {
+      $lat = $this->parseElem('double', ['yextDisplayLat'], 0.0);
+      $lon = $this->parseElem('double', ['yextDisplayLng'], 0.0);
+      if (!$lon) {
+        return [];
+      }
+      return [
+        'lat' => $lat,
+        'lon' => $lon,
+      ];
+    }
+    catch (\Throwable $t) {
+      $this->watchdogThrowable($t);
+      return [];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCustom(string $id) : string {
     if (is_numeric($id)) {
       return $this->parseElem('string', ['customFields', $id], '');

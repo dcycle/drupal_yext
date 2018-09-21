@@ -17,6 +17,13 @@ class YextIgnoreSourceRecord implements NodeMigrateSourceInterface {
   /**
    * {@inheritdoc}
    */
+  public function getGeo() : array {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCustom(string $id) : string {
     return '';
   }
