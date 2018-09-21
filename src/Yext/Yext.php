@@ -2,11 +2,15 @@
 
 namespace Drupal\drupal_yext\Yext;
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\Entity\Node;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
-use Drupal\drupal_yext\YextContent\NodeMigrator;
+use Drupal\drupal_yext\YextContent\NodeMigrationOnSave;
+use Drupal\drupal_yext\YextContent\NodeMigrationAtCreation;
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
+use Drupal\drupal_yext\YextContent\YextSourceRecordFactory;
 
 /**
  * Represents the Yext API.
@@ -134,6 +138,19 @@ class Yext {
   }
 
   /**
+   * See ./README.md for how this works.
+   *
+   * @param string $log_function
+   *   A log function such as 'print_r'.
+   */
+  public function deleteAllExisting(string $log_function = 'print_r') {
+    foreach ($this->getAllExisting() as $node) {
+      $log_function('permanently deleting node ' . $node->id() . PHP_EOL);
+      $node->delete();
+    }
+  }
+
+  /**
    * Get total number of nodes having failed to import.
    *
    * @return int
@@ -141,6 +158,34 @@ class Yext {
    */
   public function failed() {
     return count($this->stateGet('drupal_yext_failed', []));
+  }
+
+  /**
+   * Get all existing nodes of the target type.
+   *
+   * @return array
+   *   Array of Drupal nodes.
+   */
+  public function getAllExisting() : array {
+    $nids = \Drupal::entityQuery('node')->condition('type', $this->yextNodeType())->execute();
+    return Node::loadMultiple($nids);
+  }
+
+  /**
+   * Testable implementation of hook_entity_presave().
+   */
+  public function hookEntityPresave(EntityInterface $entity) {
+    try {
+      $dest = YextEntityFactory::instance()->destinationIfLinkedToYext($entity);
+      $source = YextSourceRecordFactory::instance()->sourceRecord($dest->getYextRawDataArray());
+      $migrator = new NodeMigrationOnSave($source, $dest);
+      // Migrating will do nothing if the dest and source are set to
+      // "ignore"-type classes.
+      $migrator->migrate();
+    }
+    catch (\Throwable $t) {
+      $this->watchdogThrowable($t);
+    }
   }
 
   /**
@@ -192,9 +237,11 @@ class Yext {
    */
   public function importFromArray(array $array) {
     $all_ids = [];
+    // @codingStandardsIgnoreStart
     array_walk($array, function ($item, $key) use (&$all_ids) {
+    // @codingStandardsIgnoreEnd
       if (isset($item['id'])) {
-        $all_ids[$item['id']] = $all_ids[$item['id']];
+        $all_ids[$item['id']] = $item['id'];
       }
     });
 
@@ -210,11 +257,10 @@ class Yext {
       // Yext ID.
       $destination = empty($nodes[$source->getYextId()]) ? YextEntityFactory::instance()->getOrCreateUniqueNode($this->yextNodeType(), $this->uniqueYextIdFieldName(), $source->getYextId()) : $nodes[$source->getYextId()];
 
-      $migrator = new NodeMigrator($source, $destination);
+      $migrator = new NodeMigrationAtCreation($source, $destination);
       try {
-        $migrator->migrate();
-        $destination->save();
-        $this->watchdog('Yext: migrated ' . $source->getYextId() . ' to ' . $destination->id());
+        $result = $migrator->migrate() ? 'migration occurred' : 'migration skipped, probably becaue update time is identical in source/dest.';
+        $this->watchdog('Yext ' . $result . ' for ' . $source->getYextId() . ' to ' . $destination->id());
         $this->incrementSuccess();
       }
       catch (\Throwable $t) {
@@ -393,6 +439,19 @@ class Yext {
   }
 
   /**
+   * See ./README.md for how this works.
+   *
+   * @param string $log_function
+   *   A log function such as 'print_r'.
+   */
+  public function resaveAllExisting(string $log_function = 'print_r') {
+    foreach ($this->getAllExisting() as $node) {
+      $log_function('resaving existing node ' . $node->id() . PHP_EOL);
+      $node->save();
+    }
+  }
+
+  /**
    * Reset everything to factory defaults.
    */
   public function resetAll() {
@@ -526,18 +585,6 @@ class Yext {
     else {
       $this->watchdog('Yext: could not figure out the remaining nodes.');
     }
-  }
-
-  /**
-   * The Drupal node type which will be populated by Yext data.
-   *
-   * @return string
-   *   A node type such as 'article'.
-   *
-   * @throws \Throwable
-   */
-  public function yextNodeType() : string {
-    return $this->configGet('target_node_type', 'article');
   }
 
 }

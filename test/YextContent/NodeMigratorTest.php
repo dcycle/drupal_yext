@@ -2,21 +2,21 @@
 
 namespace Drupal\drupal_yext\Tests;
 
-use Drupal\drupal_yext\YextContent\NodeMigrator;
+use Drupal\drupal_yext\YextContent\NodeMigrationOnSave;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test NodeMigrator.
+ * Test NodeMigrationOnSave.
  *
  * @group myproject
  */
-class NodeMigratorTest extends TestCase {
+class NodeMigrationOnSaveTest extends TestCase {
 
   /**
    * Smoke test.
    */
   public function testSmoke() {
-    $object = $this->getMockBuilder(NodeMigrator::class)
+    $object = $this->getMockBuilder(NodeMigrationOnSave::class)
       // NULL = no methods are mocked; otherwise list the methods here.
       ->setMethods(NULL)
       ->disableOriginalConstructor()

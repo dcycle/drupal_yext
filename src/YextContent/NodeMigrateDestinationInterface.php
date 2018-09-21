@@ -18,6 +18,22 @@ interface NodeMigrateDestinationInterface {
   public function getYextLastUpdate() : int;
 
   /**
+   * Get the Yext raw data as a jsonized-string.
+   *
+   * @return string
+   *   Json string representation of an array.
+   */
+  public function getYextRawDataString() : string;
+
+  /**
+   * Get the Yext raw data as an array.
+   *
+   * @return array
+   *   Yext structure array.
+   */
+  public function getYextRawDataArray() : array;
+
+  /**
    * Set a bio.
    *
    * @param string $bio
