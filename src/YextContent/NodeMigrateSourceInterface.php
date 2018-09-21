@@ -18,6 +18,16 @@ interface NodeMigrateSourceInterface {
   public function getBio() : string;
 
   /**
+   * Get geo coordinates.
+   *
+   * @return array
+   *   An array with, if possible, lat and lon keys.
+   *
+   * @throws \Throwable
+   */
+  public function getGeo() : array;
+
+  /**
    * Get a headshot.
    *
    * @return string

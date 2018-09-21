@@ -43,6 +43,11 @@ class YextIgnoreNode implements NodeMigrateDestinationInterface {
   /**
    * {@inheritdoc}
    */
+  public function setGeo(array $geo) {}
+
+  /**
+   * {@inheritdoc}
+   */
   public function setCustom(string $id, string $value) {}
 
   /**

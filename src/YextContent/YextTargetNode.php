@@ -84,6 +84,18 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
   /**
    * {@inheritdoc}
    */
+  public function setGeo(array $geo) {
+    if ($geofield = $this->fieldmap()->geo()) {
+      if (!empty($geo['lat'])) {
+        $value = 'POINT (' . $geo['lon'] . ' ' . $geo['lat'] . ')';
+        $this->drupal_entity->set($geofield, $value);
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function setCustom(string $id, string $value) {
     $this->drupal_entity->set($id, $value);
   }
