@@ -49,6 +49,14 @@ When you are sure it works, you can then add a cron job, say, every 15 mintues o
 
     drush ev \'drupal_yext_import_some()\'"
 
+### Note that this module does not implement cron!
+
+You will need to either add your own cron job or add:
+
+    drupal_yext_import_some();
+
+to your custom module's cron hook implementation.
+
 Issue queue and pull requests
 -----
 

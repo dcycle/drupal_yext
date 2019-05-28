@@ -22,7 +22,7 @@ done
 OUTPUT=$(echo 'select * from users limit 1'|{ mysql --user=root --password=drupal --database=drupal --host=mysql 2>&1 || true; })
 if [[ "$OUTPUT" == *"ERROR"* ]]; then
   echo "Installing Drupal because we did not find an entry in the users table."
-  drush si -y --db-url=mysql://root:drupal@mysql/drupal
+  drush si -y --db-url=mysql://root:drupal@mysql/drupal minimal
   drush sqlc < /docker-resources/initial-db-for-development.sql
 else
   echo "Assuming Drupal is already running, because there is a users table with at least one entry."
