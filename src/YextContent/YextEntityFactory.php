@@ -4,7 +4,6 @@ namespace Drupal\drupal_yext\YextContent;
 
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\traits\Singleton;
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
 
@@ -47,7 +46,7 @@ class YextEntityFactory {
   /**
    * Given a Drupal entity, return a Yext Entity.
    *
-   * @param Entity $entity
+   * @param EntityInterface $entity
    *   A Drupal entity.
    *
    * @return YextEntity
@@ -55,7 +54,7 @@ class YextEntityFactory {
    *
    * @throws Exception
    */
-  public function entity(Entity $entity) : YextEntity {
+  public function entity(EntityInterface $entity) : YextEntity {
     if (is_a($entity, Node::class)) {
       $class = YextTargetNode::class;
     }

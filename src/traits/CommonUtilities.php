@@ -4,7 +4,7 @@ namespace Drupal\drupal_yext\traits;
 
 use Drupal\drupal_yext\Yext\FieldMapper;
 use Drupal\drupal_yext\Yext\Yext;
-use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Logger\RfcLogLevel;
@@ -174,14 +174,14 @@ trait CommonUtilities {
    *
    * @param string $url
    *   An URL which contains an image.
-   * @param Entity $entity
+   * @param EntityInterface $entity
    *   A Drupal entity.
    * @param string $field_name
    *   An image field on the entity.
    *
    * @throws Exception
    */
-  public function imageFromWebToField(string $url, Entity $entity, string $field_name) {
+  public function imageFromWebToField(string $url, EntityInterface $entity, string $field_name) {
     $response = $this->httpGet($url);
     $response_code = $response->getStatusCode();
     if ($response_code != 200) {

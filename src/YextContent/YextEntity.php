@@ -2,7 +2,7 @@
 
 namespace Drupal\drupal_yext\YextContent;
 
-use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\drupal_yext\traits\CommonUtilities;
 
 /**
@@ -104,10 +104,10 @@ class YextEntity {
   /**
    * Set the entity.
    *
-   * @param Entity $drupal_entity
+   * @param EntityInterface $drupal_entity
    *   A Drupal entity.
    */
-  public function setEntity(Entity $drupal_entity) {
+  public function setEntity(EntityInterface $drupal_entity) {
     $this->drupal_entity = $drupal_entity;
   }
 
