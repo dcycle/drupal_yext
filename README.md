@@ -3,7 +3,7 @@ Drupal Yext
 
 [![CircleCI](https://circleci.com/gh/dcycle/drupal_yext.svg?style=svg)](https://circleci.com/gh/dcycle/drupal_yext)
 
-A Drupal 8 module which allows you to import data from Yext.
+A Drupal 8 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
 
 Usage
 -----
@@ -67,6 +67,11 @@ Please run tests by running `./scripts/test.sh` (you do not need to install or c
 Adding new mapping once you already have data
 -----
 
+Go to /admin/config/yext/yext, in the "Basic Node Information" section, and:
+
+* If you don't want to re-fetch data from Yext, deselect "Always update raw data on save, if possible". This might be the case, for example, if you have added new mapping to a Yext field which existed when the import first happened.
+* If you do want to re-fetch data from Yext, select "Always update raw data on save, if possible". This might be the case, for example, if a new field was added to Yext since the last import.
+
 If you add new mapping but already have nodes in your system, you can run:
 
     drush ev '\Drupal\drupal_yext\Yext\Yext::instance()->resaveAllExisting()'
@@ -78,11 +83,6 @@ If you want to delete all existing nodes of the target type, obviously back up y
     drush ev '\Drupal\drupal_yext\Yext\Yext::instance()->deleteAllExisting()'
 
 This might be useful if you want to reset the importer and start from scratch.
-
-Re-fetching existing nodes from Yext
------
-
-fff 
 
 
 Development

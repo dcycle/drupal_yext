@@ -198,6 +198,12 @@ class Yext {
     return Node::loadMultiple($nids);
   }
 
+  public function getRecordByUniqueId($id) : array {
+    $url = $this->buildUrl('/v2/accounts/me/locations/' . $id);
+    $body = (string) $this->httpGet($url)->getBody();
+    return json_decode($body, TRUE);
+  }
+
   /**
    * Get/set filters as text, with one per line.
    *
@@ -261,6 +267,7 @@ class Yext {
    */
   public function hookEntityPresave(EntityInterface $entity) {
     try {
+      $this->updateRaw($entity);
       $dest = YextEntityFactory::instance()->destinationIfLinkedToYext($entity);
       $source = YextSourceRecordFactory::instance()->sourceRecord($dest->getYextRawDataArray());
       $migrator = new NodeMigrationOnSave($source, $dest);
@@ -505,6 +512,33 @@ class Yext {
   }
 
   /**
+   * TRUE if the raw field should be updated for this entity.
+   *
+   * If the config variable "update_raw_on_save" is set, or if the raw field is
+   * empty for the entity, this will return TRUE.
+   *
+   * @param EntityInterface $entity
+   *   A Drupal entity.
+   *
+   * @return bool
+   *   TRUE if the raw field should be updated for this entity.
+   */
+  public function rawUpdatable(EntityInterface $entity) {
+    if ($this->configGet('update_raw_on_save', FALSE)) {
+      return TRUE;
+    }
+
+    $candidate = YextEntityFactory::instance()->entity($entity);
+
+    $raw = $candidate->fieldValue($this->fieldmap()->raw());
+    if (!$raw) {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Get the remaining nodes to fetch.
    *
    * @return int
@@ -643,6 +677,27 @@ class Yext {
    */
   public function uniqueYextLastUpdatedFieldName() : string {
     return $this->configGet('target_unique_last_updated_field', 'field_yext_last_updated');
+  }
+
+  /**
+   * Update the raw data field but only if this is required.
+   *
+   * @param EntityInterface $entity
+   *   A Drupal entity.
+   *
+   * @throws \Exception
+   */
+  public function updateRaw(EntityInterface $entity) {
+    if ($this->rawUpdatable($entity)) {
+      $candidate = YextEntityFactory::instance()->entity($entity);
+
+      if ($id = $candidate->fieldValue($this->uniqueYextIdFieldName())) {
+        $data = $this->getRecordByUniqueId($id);
+        if (!empty($data['response'])) {
+          $candidate->setYextRawData(json_encode($data['response'], TRUE));
+        }
+      }
+    }
   }
 
   /**

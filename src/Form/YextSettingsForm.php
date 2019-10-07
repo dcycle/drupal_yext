@@ -93,6 +93,12 @@ class YextSettingsForm extends FormBase {
       ]),
       '#open' => FALSE,
     ];
+    $form['yextbase']['DrupalYextBase.alwaysRefetchOnSave'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Always update raw data on save, if possible'),
+      '#description' => $this->t('If this is checked, when a node is saved, we will attempt to re-fetch data from Yext.'),
+      '#default_value' => $this->configGet('update_raw_on_save', FALSE),
+    );
     $form['yextbase']['DrupalYextBase.nodetype'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('The target node type'),
@@ -297,6 +303,7 @@ HEREDOC
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
+    $this->configSet('update_raw_on_save', $input['DrupalYextBase_alwaysRefetchOnSave']);
     $this->yext()->setNodeType($input['DrupalYextBase_nodetype']);
     $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase_uniqueidfield']);
     $this->fieldmap()->setFieldMapping($input['yextfieldmapping']);
