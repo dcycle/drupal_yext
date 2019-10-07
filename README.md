@@ -41,13 +41,13 @@ You can use the Yext Import Status in /admin/config/yext/yext to import data day
 
 If that times out, you can also use:
 
-    drush ev \'drupal_yext_import_some()\'"
+    drush ev "drupal_yext_import_some()"
 
 This will update the "Next check date for Yext" by one day, and import data for taht day. If there is no data which was updated on that day, nothing will be imported! **So you will need to run 30, 40 times** to make sure it works!
 
 When you are sure it works, you can then add a cron job, say, every 15 mintues on your environment, with
 
-    drush ev \'drupal_yext_import_some()\'"
+    drush ev "drupal_yext_import_some()"
 
 ### Note that this module does not implement cron!
 
@@ -74,13 +74,13 @@ Go to /admin/config/yext/yext, in the "Basic Node Information" section, and:
 
 If you add new mapping but already have nodes in your system, you can run:
 
-    drush ev '\Drupal\drupal_yext\Yext\Yext::instance()->resaveAllExisting()'
+    drush ev "\Drupal\drupal_yext\Yext\Yext::instance()->resaveAllExisting()"
 
 Be careful as this will **overwrite** all fields in your target node type with data taken from the Yext raw API output in your node's "yext raw data" field. Back up your database before trying this, please.
 
 If you want to delete all existing nodes of the target type, obviously back up your database, and run:
 
-    drush ev '\Drupal\drupal_yext\Yext\Yext::instance()->deleteAllExisting()'
+    drush ev "\Drupal\drupal_yext\Yext\Yext::instance()->deleteAllExisting()"
 
 This might be useful if you want to reset the importer and start from scratch.
 
