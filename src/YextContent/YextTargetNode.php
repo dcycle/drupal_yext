@@ -113,6 +113,10 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    * {@inheritdoc}
    */
   public function setName(string $name) {
+    if (!$name) {
+      $name = "Unknown";
+      $this->drupalSetMessage($this->t('The name is empty, using @t instead as a title.', ['@t' => $name]));
+    }
     $this->drupal_entity->setTitle($name);
   }
 
@@ -120,7 +124,12 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    * {@inheritdoc}
    */
   public function setYextId(string $id) {
-    $this->drupal_entity->set($this->yext()->uniqueYextIdFieldName(), $id);
+    if ($id) {
+      $this->drupal_entity->set($this->yext()->uniqueYextIdFieldName(), $id);
+    }
+    else {
+      $this->drupalSetMessage($this->t('Refusing to update Yext ID field to empty'));
+    }
   }
 
   /**

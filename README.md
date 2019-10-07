@@ -3,7 +3,7 @@ Drupal Yext
 
 [![CircleCI](https://circleci.com/gh/dcycle/drupal_yext.svg?style=svg)](https://circleci.com/gh/dcycle/drupal_yext)
 
-A Drupal 8 module which allows you to import data from Yext.
+A Drupal 8 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
 
 Usage
 -----
@@ -12,7 +12,7 @@ Usage
 
     drush dl drupal_yext
 
-### Step 2: Make sure you have a node in which to save Yext data:
+### Step 2: Make sure you have a node type in which to save Yext data:
 
 Each Yext record will create a new node. Make sure you create a node type which will correspond to Yext records, and a field which will contain the Yext unique ID.
 
@@ -67,6 +67,11 @@ Please run tests by running `./scripts/test.sh` (you do not need to install or c
 Adding new mapping once you already have data
 -----
 
+Go to /admin/config/yext/yext, in the "Basic Node Information" section, and:
+
+* If you don't want to re-fetch data from Yext, deselect "Always update raw data on save, if possible". This might be the case, for example, if you have added new mapping to a Yext field which existed when the import first happened.
+* If you do want to re-fetch data from Yext, select "Always update raw data on save, if possible". This might be the case, for example, if a new field was added to Yext since the last import.
+
 If you add new mapping but already have nodes in your system, you can run:
 
     drush ev "\Drupal\drupal_yext\Yext\Yext::instance()->resaveAllExisting()"
@@ -100,3 +105,10 @@ If you know a Doctor's ID, and want to fetch it from Yext, you can go to /devel/
     dpm(json_decode($body, TRUE));
 
 If you are not sure if a particular field (say, 12819) or a bio is actually importing, but you have lots of content which does not have these fields or a bio, you can create a view which filters by "yext raw data contains:" and set it to only display content which has your field or a description.
+
+Getting an individual Yext record
+-----
+
+Yext locations have unique IDs which look like "0013800002eNtybAAC". To obtain the record from yext you can call:
+
+    drupal_yext()->getRecordByUniqueId('0013800002eNtybAAC');
