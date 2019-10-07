@@ -198,6 +198,19 @@ class Yext {
     return Node::loadMultiple($nids);
   }
 
+  /**
+   * Given a unique ID such as 0013800002eNtybAAC, return its record.
+   *
+   * An exception is thrown if the record does not exist.
+   *
+   * @param string $id
+   *   A unique Yext ID.
+   *
+   * @return array
+   *   A unique Yext record.
+   *
+   * @throws \Exception
+   */
   public function getRecordByUniqueId($id) : array {
     $url = $this->buildUrl('/v2/accounts/me/locations/' . $id);
     $body = (string) $this->httpGet($url)->getBody();
