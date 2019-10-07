@@ -84,7 +84,6 @@ If you want to delete all existing nodes of the target type, obviously back up y
 
 This might be useful if you want to reset the importer and start from scratch.
 
-
 Development
 -----
 

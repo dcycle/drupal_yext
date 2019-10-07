@@ -690,6 +690,7 @@ class Yext {
   public function updateRaw(EntityInterface $entity) {
     if ($this->rawUpdatable($entity)) {
       $candidate = YextEntityFactory::instance()->entity($entity);
+      $this->drupalSetMessage($this->t('Will try to update data from Yext for node with nid @i', ['@i' => $entity->id()]));
 
       if ($id = $candidate->fieldValue($this->uniqueYextIdFieldName())) {
         $data = $this->getRecordByUniqueId($id);
@@ -697,6 +698,9 @@ class Yext {
           $candidate->setYextRawData(json_encode($data['response'], TRUE));
         }
       }
+    }
+    else {
+      $this->drupalSetMessage($this->t('Will not try to update data from Yext for node with nid @i', ['@i' => $entity->id()]));
     }
   }
 
