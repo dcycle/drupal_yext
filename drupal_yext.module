@@ -9,6 +9,13 @@ use Drupal\drupal_yext\Yext\Yext;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
+ * Wrapper around Yext::instance().
+ */
+function drupal_yext() : Yext {
+  return Yext::instance();
+}
+
+/**
  * Implements hook_entity_presave().
  */
 function drupal_yext_entity_presave(EntityInterface $entity) {
