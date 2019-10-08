@@ -254,6 +254,23 @@ HEREDOC
   }
 
   /**
+   * Set configuration based on user input, with default value.
+   *
+   * @param string $config_name
+   *   A config name.
+   * @param array $input
+   *   A user input.
+   * @param string $key
+   *   A key, which can exist or not in the user input.
+   * @param mixed $default
+   *   A default value.
+   */
+  public function configSetFromUserInput(string $config_name, array $input, string $key, $default) {
+    $value = array_key_exists($key, $input) ? $input[$key] : $default;
+    $this->configSet($config_name, $value);
+  }
+
+  /**
    * Helper function to add a "mapping" section to the form.
    *
    * @param array $form
@@ -303,7 +320,7 @@ HEREDOC
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
-    $this->configSet('update_raw_on_save', $input['DrupalYextBase_alwaysRefetchOnSave']);
+    $this->configSetFromUserInput('update_raw_on_save', $input, 'DrupalYextBase_alwaysRefetchOnSave', FALSE);
     $this->yext()->setNodeType($input['DrupalYextBase_nodetype']);
     $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase_uniqueidfield']);
     $this->fieldmap()->setFieldMapping($input['yextfieldmapping']);
