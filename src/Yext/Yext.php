@@ -708,14 +708,11 @@ class Yext {
       return;
     }
     try {
+      // We now have an ID, we need to populate the raw data and, if we have
+      // an error, unpublish the node.
       $data = $this->getRecordByUniqueId($id);
-      if ($data['response']) {
-        // We now have an ID, we need to populate the raw data and, if we have
-        // an error, unpublish the node.
-        $data = $this->getRecordByUniqueId($id);
-        if (!empty($data['response'])) {
-          $candidate->setYextRawData(json_encode($data['response'], TRUE));
-        }
+      if (!empty($data['response'])) {
+        $candidate->setYextRawData(json_encode($data['response'], TRUE));
       }
       else {
         throw new \Exception('Got data from Yext but it does not contain a "response" key.');
