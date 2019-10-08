@@ -99,6 +99,12 @@ class YextSettingsForm extends FormBase {
       '#description' => $this->t('If this is checked, when a node is saved, we will attempt to re-fetch data from Yext.'),
       '#default_value' => $this->configGet('update_raw_on_save', FALSE),
     );
+    $form['yextbase']['DrupalYextBase.unpublishNodeIfIdInvalid'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('When updating raw data on save, unpublish the node if the ID is invalid'),
+      '#description' => $this->t('This might happen if, for example, an item was completely deleted from Yext but still exists locally. This will kick in if "Always update raw data on save" is checked or if a node with is saved when it has an id and empty raw data.'),
+      '#default_value' => $this->configGet('unpublish_node_if_id_invalid', FALSE),
+    );
     $form['yextbase']['DrupalYextBase.nodetype'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('The target node type'),
@@ -321,6 +327,7 @@ HEREDOC
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
     $this->configSetFromUserInput('update_raw_on_save', $input, 'DrupalYextBase_alwaysRefetchOnSave', FALSE);
+    $this->configSetFromUserInput('unpublish_node_if_id_invalid', $input, 'DrupalYextBase_unpublishNodeIfIdInvalid', FALSE);
     $this->yext()->setNodeType($input['DrupalYextBase_nodetype']);
     $this->yext()->setUniqueYextIdFieldName($input['DrupalYextBase_uniqueidfield']);
     $this->fieldmap()->setFieldMapping($input['yextfieldmapping']);
