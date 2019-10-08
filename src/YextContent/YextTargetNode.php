@@ -114,8 +114,8 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    */
   public function setName(string $name) {
     if (!$name) {
-      $name = "Unknown";
-      $this->drupalSetMessage($this->t('The name is empty, using @t instead as a title.', ['@t' => $name]));
+      $this->drupalSetMessage($this->t('The name in the raw data is empty, not updating it as it would cause an error.'));
+      return;
     }
     $this->drupal_entity->setTitle($name);
   }
@@ -144,6 +144,13 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    */
   public function setYextRawData(string $data) {
     $this->drupal_entity->set($this->fieldmap()->raw(), $data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function unpublish() {
+    $this->drupalEntity()->setPublished(FALSE);
   }
 
 }

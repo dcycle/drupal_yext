@@ -9,6 +9,7 @@ use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\NodeMigrationOnSave;
 use Drupal\drupal_yext\YextContent\NodeMigrationAtCreation;
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
+use Drupal\drupal_yext\YextContent\YextEntity;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
 use Drupal\drupal_yext\YextContent\YextSourceRecordFactory;
 
@@ -693,6 +694,53 @@ class Yext {
   }
 
   /**
+   * Given an entity, update it based on a response from the server.
+   *
+   * @param YextEntity $candidate
+   *   An entity to be updated.
+   *
+   * @throws \Exception
+   */
+  public function updateEntityFromId(YextEntity $candidate) {
+    $id = $candidate->fieldValue($this->uniqueYextIdFieldName());
+    if (!$id) {
+      // No ID, nothing to do.
+      return;
+    }
+    try {
+      $data = $this->getRecordByUniqueId($id);
+      if ($data['response']) {
+        // We now have an ID, we need to populate the raw data and, if we have
+        // an error, unpublish the node.
+        $data = $this->getRecordByUniqueId($id);
+        if (!empty($data['response'])) {
+          $candidate->setYextRawData(json_encode($data['response'], TRUE));
+        }
+      }
+      else {
+        throw new \Exception('Got data from Yext but it does not contain a "response" key.');
+      }
+    }
+    catch (\Throwable $t) {
+      $this->watchdogThrowable($t);
+      $t_args = [
+        '@i' => $candidate->id(),
+        '@t' => $t->getMessage(),
+        '@yext_id' => $id,
+      ];
+      if ($this->configGet('unpublish_node_if_id_invalid', FALSE)) {
+        $message = $this->t('Unpublishing node with nid @i (Yext id @yext_id) because we got the error @t from Yext.', $t_args);
+        $this->drupalSetMessage($message);
+        $candidate->setYextRawData(json_encode($message, TRUE));
+        $candidate->unpublish();
+      }
+      else {
+        $this->drupalSetMessage($this->t('We got error @t from the server but we will not unpublish node @i (Yext id @yext_id)', $t_args));
+      }
+    }
+  }
+
+  /**
    * Update the raw data field but only if this is required.
    *
    * @param EntityInterface $entity
@@ -705,12 +753,7 @@ class Yext {
       $candidate = YextEntityFactory::instance()->entity($entity);
       $this->drupalSetMessage($this->t('Will try to update data from Yext for node with nid @i', ['@i' => $entity->id()]));
 
-      if ($id = $candidate->fieldValue($this->uniqueYextIdFieldName())) {
-        $data = $this->getRecordByUniqueId($id);
-        if (!empty($data['response'])) {
-          $candidate->setYextRawData(json_encode($data['response'], TRUE));
-        }
-      }
+      $this->updateEntityFromId($candidate);
     }
     else {
       $this->drupalSetMessage($this->t('Will not try to update data from Yext for node with nid @i', ['@i' => $entity->id()]));

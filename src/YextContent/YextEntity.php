@@ -217,4 +217,12 @@ class YextEntity {
     return '';
   }
 
+  /**
+   * Unpublish this entity if possible.
+   */
+  public function unpublish() {
+    // Entities cannot be unpublished. The subclass YextTargetNode overrides
+    // this.
+  }
+
 }
