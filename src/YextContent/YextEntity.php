@@ -90,7 +90,11 @@ class YextEntity {
    * @throws Exception
    */
   public function fieldValue(string $field_name) {
-    $field = $this->drupalEntity()->get($field_name)->getValue();
+    $field = $this->drupalEntity()->get($field_name);
+    if (!$field) {
+      return '';
+    }
+    $field = $field->getValue();
     return isset($field[0]['value']) ? $field[0]['value'] : '';
   }
 
