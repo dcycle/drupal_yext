@@ -156,6 +156,19 @@ class Yext {
   }
 
   /**
+   * Return TRUE if the entity is of the correct type.
+   *
+   * In /admin/config/yext/yext, a specific entity type can be mapped to
+   * Yext. Only that type will be accepted.
+   *
+   * @return bool
+   *   TRUE if types match.
+   */
+  public function checkEntityType(EntityInterface $entity) : bool {
+    return $entity->getType() == $this->yextNodeType();
+  }
+
+  /**
    * Get the default Yext base URL.
    *
    * @return string
@@ -281,13 +294,16 @@ class Yext {
    */
   public function hookEntityPresave(EntityInterface $entity) {
     try {
-      $this->updateRaw($entity);
-      $dest = YextEntityFactory::instance()->destinationIfLinkedToYext($entity);
-      $source = YextSourceRecordFactory::instance()->sourceRecord($dest->getYextRawDataArray());
-      $migrator = new NodeMigrationOnSave($source, $dest);
-      // Migrating will do nothing if the dest and source are set to
-      // "ignore"-type classes.
-      $migrator->migrate();
+      if ($this->checkEntityType($entity)) {
+        print_r(['aaaa']);
+        $this->updateRaw($entity);
+        $dest = YextEntityFactory::instance()->destinationIfLinkedToYext($entity);
+        $source = YextSourceRecordFactory::instance()->sourceRecord($dest->getYextRawDataArray());
+        $migrator = new NodeMigrationOnSave($source, $dest);
+        // Migrating will do nothing if the dest and source are set to
+        // "ignore"-type classes.
+        $migrator->migrate();
+      }
     }
     catch (\Throwable $t) {
       $this->watchdogThrowable($t);

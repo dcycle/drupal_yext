@@ -11,7 +11,7 @@ echo '...'
 echo '// @codingStandardsIgnoreEnd'
 echo ''
 
-docker run -v "$(pwd)"/src:/code dcycle/php-lint \
+docker run -v "$(pwd)"/src:/code dcycle/php-lint:1 \
   --standard=DrupalPractice /code
-docker run -v "$(pwd)"/src:/code dcycle/php-lint \
+docker run -v "$(pwd)"/src:/code dcycle/php-lint:1 \
   --standard=Drupal /code
