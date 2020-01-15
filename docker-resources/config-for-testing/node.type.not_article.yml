@@ -1,0 +1,11 @@
+uuid: 396ed618-ce2e-4779-a39c-b24867dfa316
+langcode: en
+status: true
+dependencies: {  }
+name: not-article
+type: not_article
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: true

@@ -4,10 +4,12 @@ module:
   drupal_yext: 0
   dynamic_page_cache: 0
   field: 0
+  field_ui: 0
   file: 0
   filter: 0
   geofield: 0
   geofield_map: 0
+  image: 0
   node: 0
   page_cache: 0
   system: 0
