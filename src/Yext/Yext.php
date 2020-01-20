@@ -165,6 +165,9 @@ class Yext {
    *   TRUE if types match.
    */
   public function checkEntityType(EntityInterface $entity) : bool {
+    if ($entity->getEntityType()->id() != 'node') {
+      return FALSE;
+    }
     return $entity->getType() == $this->yextNodeType();
   }
 
@@ -295,7 +298,6 @@ class Yext {
   public function hookEntityPresave(EntityInterface $entity) {
     try {
       if ($this->checkEntityType($entity)) {
-        print_r(['aaaa']);
         $this->updateRaw($entity);
         $dest = YextEntityFactory::instance()->destinationIfLinkedToYext($entity);
         $source = YextSourceRecordFactory::instance()->sourceRecord($dest->getYextRawDataArray());
