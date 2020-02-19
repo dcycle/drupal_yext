@@ -3,7 +3,6 @@
 namespace Drupal\drupal_yext\Form;
 
 use Drupal\drupal_yext\traits\CommonUtilities;
-use Drupal\drupal_yext\Yext\Yext;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -133,7 +132,7 @@ class YextSettingsForm extends FormBase {
         ]),
         '#open' => FALSE,
       ];
-      $base = $this->yext()->base(];
+      $base = $this->yext()->base();
       $form['yext']['DrupalYext.yextbase'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Yext base URL'),
@@ -154,14 +153,14 @@ class YextSettingsForm extends FormBase {
         '#description' => $this->t('YYYY-MM-DD; this is set automatically during normal operation.'),
         '#default_value' => $this->yext()->nextDateToImport('Y-m-d'),
       ];
-      $acct = $this->yext()->accountNumber(];
+      $acct = $this->yext()->accountNumber();
       $form['yext']['DrupalYext.yextaccount'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Yext account number'),
         '#description' => $this->t('This is something like 123456 or, if you have only one account, "me". This is a state variable, not config, so it can differ between environments.'),
         '#default_value' => $acct,
       ];
-      $key = $this->yext()->apiKey(];
+      $key = $this->yext()->apiKey();
       $form['yext']['DrupalYext.yextapi'] = [
         '#type' => 'password',
         '#title' => $this->t('Yext API key'),
@@ -170,7 +169,7 @@ class YextSettingsForm extends FormBase {
       ];
       $checkmessage = $this->yextTestString();
       $checkmessagemore = $this->yextTestStringMore();
-      $icon = $this->yextTestIcon(];
+      $icon = $this->yextTestIcon();
       $form['yext']['DrupalYext.ajaxYextTest'] = [
         '#type' => 'button',
         '#value' => $this->t('Test the API key'),
@@ -182,8 +181,8 @@ class YextSettingsForm extends FormBase {
           'progress' => [
             'type' => 'throbber',
             'message' => NULL,
-          ),
-        ),
+          ],
+        ],
         '#prefix' => <<< HEREDOC
 <span class="system-status-counter system-status-counter--error">
   <span class="yext-ajaxy" id="check-icon-wrapper">$icon</span>
@@ -208,7 +207,7 @@ HEREDOC
       $failed = $this->yext()->failed();
       $next_date = $this->yext()->nextDateToImport('Y-m-d');
       $last_check = $this->yext()->lastCheck('Y-m-d H:i:s');
-      $remaining = $this->yext()->remaining(];
+      $remaining = $this->yext()->remaining();
       $form['yextimport']['DrupalYext.ajaxResetAll'] = [
         '#type' => 'button',
         '#value' => $this->t('Reset the API importer'),
@@ -249,7 +248,7 @@ HEREDOC
     catch (\Throwable $t) {
       $this->watchdogThrowable($t);
     }
-    $this->formAddMappingSection($form];
+    $this->formAddMappingSection($form);
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',

@@ -310,7 +310,7 @@ class Yext {
     // As a last resort, create a brand new node.
     if (empty($result['target'])) {
       $result['target'] = YextEntityFactory::instance()->generate('node', $this->yextNodeType());
-      $result['target']->setFieldValue($field_name, $field_value);
+      $result['target']->setFieldValue($this->uniqueYextIdFieldName(), $record->getYextId());
       $result['target']->save();
     }
 

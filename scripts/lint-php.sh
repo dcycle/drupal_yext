@@ -3,6 +3,8 @@
 # Lint php files.
 #
 
+set -e
+
 echo 'Linting PHP files'
 echo 'If you are getting a false negative, use:'
 echo ''
