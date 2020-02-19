@@ -9,7 +9,7 @@ use Drupal\drupal_yext\YextPluginBase;
 /**
  * If a node with the Yext ID already exists in Drupal, return it.
  *
- * @ExposeStatusPluginAnnotation(
+ * @YextPluginAnnotation(
  *   id = "drupal_yext_node_already_exists",
  *   description = @Translation("Potentially pre-existing Drupal node."),
  *   weight = -1,

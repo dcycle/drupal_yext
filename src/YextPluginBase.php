@@ -9,8 +9,8 @@ use Drupal\Component\Plugin\PluginBase;
 /**
  * A base class to help developers implement YextPlugin objects.
  *
- * @see \Drupal\expose_status\Annotation\ExposeStatusPluginAnnotation
- * @see \Drupal\expose_status\ExposeStatusPluginInterface
+ * @see \Drupal\drupal_yext\Annotation\YextPluginAnnotation
+ * @see \Drupal\drupal_yext\YextPluginInterface
  */
 abstract class YextPluginBase extends PluginBase implements YextPluginInterface {
 

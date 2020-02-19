@@ -49,10 +49,10 @@ class YextPluginManager extends DefaultPluginManager {
   // @codingStandardsIgnoreEnd
     // We replace the $subdir parameter with our own value.
     // This tells the plugin manager to look for plugins in the
-    // 'src/Plugin/ExposeStatusPlugin' subdirectory of any enabled modules.
+    // 'src/Plugin/YextPlugin' subdirectory of any enabled modules.
     // This also serves to define the PSR-4 subnamespace in which plugins will
     // live. Modules can put a plugin class in their own namespace such as
-    // Drupal\{module_name}\Plugin\ExposeStatusPlugin\MyPlugin.
+    // Drupal\{module_name}\Plugin\YextPlugin\MyPlugin.
     $subdir = 'Plugin/YextPlugin';
 
     // The name of the interface that plugins should adhere to. Drupal will
