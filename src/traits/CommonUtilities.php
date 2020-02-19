@@ -149,7 +149,7 @@ trait CommonUtilities {
   /**
    * Get the field mapping singleton.
    *
-   * @return FieldMapper
+   * @return \Drupal\drupal_yext\Yext\FieldMapper
    *   The field mapper singleton.
    */
   public function fieldmap() : FieldMapper {
@@ -174,7 +174,7 @@ trait CommonUtilities {
    *
    * @param string $url
    *   An URL which contains an image.
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   A Drupal entity.
    * @param string $field_name
    *   An image field on the entity.
@@ -209,7 +209,7 @@ trait CommonUtilities {
    *
    * This is relatively equivalent to the l() function in Drupal 7.
    *
-   * @return Link
+   * @return \Drupal\Core\Link
    *   A displayable link.
    *
    * @throws Exception
@@ -283,10 +283,24 @@ trait CommonUtilities {
   /**
    * Log a \Throwable to the watchdog.
    *
+   * Based on
+   * https://api.drupal.org/api/drupal/core%21includes%21bootstrap.inc/function/watchdog_exception/8.2.x
+   * to work with \Throwables as well as \Exceptions.
+   *
    * @param \Throwable $t
    *   A \throwable.
+   * @param mixed $message
+   *   The message to store in the log. If empty, a text that contains all
+   *   useful information about the passed-in exception is used.
+   * @param mixed $variables
+   *   Array of variables to replace in the message on display or NULL if
+   *   message is already translated or not possible to translate.
+   * @param mixed $severity
+   *   The severity of the message, as per RFC 3164.
+   * @param mixed $link
+   *   $link: A link to associate with the message.
    */
-  public function watchdogThrowable(\Throwable $t, $message = NULL, $variables = array(), $severity = RfcLogLevel::ERROR, $link = NULL) {
+  public function watchdogThrowable(\Throwable $t, $message = NULL, $variables = [], $severity = RfcLogLevel::ERROR, $link = NULL) {
 
     // Use a default value if $message is not set.
     if (empty($message)) {
@@ -305,7 +319,7 @@ trait CommonUtilities {
   /**
    * Get the Yext app singleton.
    *
-   * @return Yext
+   * @return \Drupal\drupal_yext\Yext
    *   The Yext singleton.
    */
   public function yext() {

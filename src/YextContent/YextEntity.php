@@ -108,7 +108,7 @@ class YextEntity {
   /**
    * Set the entity.
    *
-   * @param EntityInterface $drupal_entity
+   * @param \Drupal\Core\Entity\EntityInterface $drupal_entity
    *   A Drupal entity.
    */
   public function setEntity(EntityInterface $drupal_entity) {
