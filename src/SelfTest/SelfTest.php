@@ -8,6 +8,12 @@ use Drupal\drupal_yext\YextContent\NodeMigrationAtCreation;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextTargetNode;
+// drupal_yext_find_by_title is not a dependency of drupal_yext, however
+// in this context this is self-test code and it's being run by the
+// the CI script, so we can control whether drupal_yext_find_by_title is
+// enabled, plus we're explicitly checking that it's enabled before using
+// it.
+use Drupal\drupal_yext_find_by_title\YextFindByTitle;
 
 /**
  * Run some self tests.
@@ -148,12 +154,51 @@ class SelfTest {
 
     $this->print('Creating some dummy nodes.');
 
+    $dummy_nodes = [];
     $dummy_nodes += $this->generateDummy('ONE OF THESE');
     $dummy_nodes += $this->generateDummy('TWO OF THESE');
     $dummy_nodes += $this->generateDummy('TWO OF THESE');
+    $dummy_nodes += $this->generateDummy('ONE OF THESE IS EMPTY');
+    $has_yext_id = $this->generateDummy('ONE OF THESE IS EMPTY');
+    $has_yext_id = array_pop($has_yext_id);
+    $has_yext_id->setYextId('whatever');
+    $has_yext_id->drupal_entity->save();
+    $dummy_nodes += [
+      $has_yext_id->id() => $has_yext_id,
+    ];
+
+    $this->assert(FALSE, is_null(YextFindByTitle::instance()->candidate('ONE OF THESE')), 'If there is only one node with no yext ID and a specific title, use it.');
+    $this->assert(TRUE, is_null(YextFindByTitle::instance()->candidate('TWO OF THESE')), 'If there is more than one node with a specific title, do not use it as it is too ambiguous.');
+    $this->assert(FALSE, is_null(YextFindByTitle::instance()->candidate('ONE OF THESE IS EMPTY')), 'If there are two nodes with a specific title, but one already has a yext id, then use the other one.');
+
+    $entity4 = $this->mockMigrate([
+      'id' => 'not important',
+      'locationName' => 'ONE OF THESE',
+      'timestamp' => 1,
+    ]);
+
+    $entity5 = $this->mockMigrate([
+      'id' => 'not important',
+      'locationName' => 'TWO OF THESE',
+      'timestamp' => 1,
+    ]);
+
+    $entity6 = $this->mockMigrate([
+      'id' => 'not important',
+      'locationName' => 'TWO OF THESE IS EMPTY',
+      'timestamp' => 1,
+    ]);
+
+    $this->assert(TRUE, in_array($entity4->id(), $dummy_nodes), 'Uses existing node if possible.');
+    $this->assert(FALSE, in_array($entity5->id(), $dummy_nodes), 'Uses new node if existing title is ambiguous.');
+    $this->assert(TRUE, in_array($entity6->id(), $dummy_nodes), 'Uses existing node if possible.');
 
     $this->print('Delete our dummy nodes.');
 
+    foreach ($dummy_nodes as $node) {
+      $node->drupal_entity->delete();
+    }
+    $entity5->drupal_entity->delete();
     $this->print('Self-test completed successfully.');
   }
 

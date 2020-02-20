@@ -6,6 +6,7 @@ use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\YextTargetNode;
 use Drupal\drupal_yext_find_by_title\YextFindByTitleResponse\YextFindByTitleResponse;
+use Drupal\node\Entity\Node;
 
 /**
  * Module functions.
@@ -29,15 +30,16 @@ class YextFindByTitle {
    *   The target node if possible.
    */
   public function candidate(string $yext_title) {
-    return NULL;
     $query = \Drupal::entityQuery('node');
     $query->condition('type', $this->yextNodeType());
     $query->condition('title', $yext_title);
-    $query->condition($this->yextNodeType(), NULL);
+    $query->condition($this->yext()->uniqueYextIdFieldName(), NULL, 'IS NULL');
     $entity_ids = $query->execute();
-
-
-
+    if (count($entity_ids) == 1) {
+      $return = new YextTargetNode();
+      $return->setEntity(Node::load(array_pop($entity_ids)));
+      return $return;
+    }
     return NULL;
   }
 
