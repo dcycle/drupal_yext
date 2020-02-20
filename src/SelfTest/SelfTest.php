@@ -5,6 +5,7 @@ namespace Drupal\drupal_yext\SelfTest;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\NodeMigrationAtCreation;
+use Drupal\drupal_yext\YextContent\YextEntityFactory;
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextTargetNode;
 
@@ -45,6 +46,27 @@ class SelfTest {
       $this->print('TEST FALED :( KILLING THE PROCESS');
       die(1);
     }
+  }
+
+  /**
+   * Generate a dummy node.
+   *
+   * @param string $title
+   *   The node title.
+   *
+   * @return array
+   *   An array with one item whose key is the node id, and the value is
+   *   an object of class YextTargetNode.
+   *
+   * @throws \Exception
+   */
+  public function generateDummy(string $title) : array {
+    $node = YextEntityFactory::instance()->generate('node', 'article');
+    $node->drupal_entity->setTitle($title);
+    $node->drupal_entity->save();
+    return [
+      $node->id() => $node,
+    ];
   }
 
   /**
@@ -123,6 +145,14 @@ class SelfTest {
     $this->print('Deleting the entities we created.');
 
     $entity->drupal_entity->delete();
+
+    $this->print('Creating some dummy nodes.');
+
+    $dummy_nodes += $this->generateDummy('ONE OF THESE');
+    $dummy_nodes += $this->generateDummy('TWO OF THESE');
+    $dummy_nodes += $this->generateDummy('TWO OF THESE');
+
+    $this->print('Delete our dummy nodes.');
 
     $this->print('Self-test completed successfully.');
   }
