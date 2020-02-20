@@ -3,7 +3,6 @@
 namespace Drupal\drupal_yext\Form;
 
 use Drupal\drupal_yext\traits\CommonUtilities;
-use Drupal\drupal_yext\Yext\Yext;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -93,38 +92,38 @@ class YextSettingsForm extends FormBase {
       ]),
       '#open' => FALSE,
     ];
-    $form['yextbase']['DrupalYextBase.alwaysRefetchOnSave'] = array(
+    $form['yextbase']['DrupalYextBase.alwaysRefetchOnSave'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Always update raw data on save, if possible'),
       '#description' => $this->t('If this is checked, when a node is saved, we will attempt to re-fetch data from Yext.'),
       '#default_value' => $this->configGet('update_raw_on_save', FALSE),
-    );
-    $form['yextbase']['DrupalYextBase.unpublishNodeIfIdInvalid'] = array(
+    ];
+    $form['yextbase']['DrupalYextBase.unpublishNodeIfIdInvalid'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('When updating raw data on save, unpublish the node if the ID is invalid'),
       '#description' => $this->t('This might happen if, for example, an item was completely deleted from Yext but still exists locally. This will kick in if "Always update raw data on save" is checked or if a node with is saved when it has an id and empty raw data.'),
       '#default_value' => $this->configGet('unpublish_node_if_id_invalid', FALSE),
-    );
-    $form['yextbase']['DrupalYextBase.nodetype'] = array(
+    ];
+    $form['yextbase']['DrupalYextBase.nodetype'] = [
       '#type' => 'textfield',
       '#title' => $this->t('The target node type'),
       '#description' => $this->t('Something like "article" or "doctor". This is not validated, so please make sure it exists.'),
       '#default_value' => $this->yext()->yextNodeType(),
-    );
-    $form['yextbase']['DrupalYextBase.uniqueidfield'] = array(
+    ];
+    $form['yextbase']['DrupalYextBase.uniqueidfield'] = [
       '#type' => 'textfield',
       '#title' => $this->t('The target ID field'),
       '#description' => $this->t('Something like "field_yext_id". This is not validated, so please make sure it exists.'),
       '#default_value' => $this->yext()->uniqueYextIdFieldName(),
-    );
-    $form['yextbase']['DrupalYextBase.uniquelastupdatedfield'] = array(
+    ];
+    $form['yextbase']['DrupalYextBase.uniquelastupdatedfield'] = [
       '#type' => 'textfield',
       '#title' => $this->t('The target "last updated" field'),
       '#description' => $this->t('Something like "field_yext_last_updated". This is not validated, so please make sure it exists.'),
       '#default_value' => $this->yext()->uniqueYextLastUpdatedFieldName(),
-    );
+    ];
     try {
-      $form['yext'] = array(
+      $form['yext'] = [
         '#type' => 'details',
         '#title' => $this->t('Yext integration'),
         '#description' => $this->t('This website attempts to synchronize data from @yext using their @api, creating nodes. Once you have an "app" and API key set up, you can enter them here.', [
@@ -132,58 +131,58 @@ class YextSettingsForm extends FormBase {
           '@api' => $this->link('API', 'http://developer.yext.ca/docs/guides/get-started/')->toString(),
         ]),
         '#open' => FALSE,
-      );
+      ];
       $base = $this->yext()->base();
-      $form['yext']['DrupalYext.yextbase'] = array(
+      $form['yext']['DrupalYext.yextbase'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Yext base URL'),
         '#description' => $this->t('Something like @b. This is a state variable, not config, so it can differ between environments. Be careful to use the appropriate base for your needs: https://liveapi.yext.com and https://api.yext.com work differently, and this module has been tested especially with https://liveapi.yext.com.', [
           '@b' => $this->yext()->defaultBase(),
         ]),
         '#default_value' => $base,
-      );
-      $form['yext']['DrupalYext.filters'] = array(
+      ];
+      $form['yext']['DrupalYext.filters'] = [
         '#type' => 'textarea',
         '#title' => $this->t('Extra get parameters'),
         '#description' => $this->t('One per line as per <a href="https://developer.yext.ca/docs/live-api" target="_blank">the API documenentaion</a>. One example of what to put here would be <code>[{"locationType":{"is":[2]}}]</code>. Every line should be in exactly that format. This is configuration, not a state variable, so you can management via config management between environments.'),
         '#default_value' => $this->yext()->filtersAsText(),
-      );
-      $form['yext']['DrupalYext.yextnext'] = array(
+      ];
+      $form['yext']['DrupalYext.yextnext'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Next check date for Yext'),
         '#description' => $this->t('YYYY-MM-DD; this is set automatically during normal operation.'),
         '#default_value' => $this->yext()->nextDateToImport('Y-m-d'),
-      );
+      ];
       $acct = $this->yext()->accountNumber();
-      $form['yext']['DrupalYext.yextaccount'] = array(
+      $form['yext']['DrupalYext.yextaccount'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Yext account number'),
         '#description' => $this->t('This is something like 123456 or, if you have only one account, "me". This is a state variable, not config, so it can differ between environments.'),
         '#default_value' => $acct,
-      );
+      ];
       $key = $this->yext()->apiKey();
-      $form['yext']['DrupalYext.yextapi'] = array(
+      $form['yext']['DrupalYext.yextapi'] = [
         '#type' => 'password',
         '#title' => $this->t('Yext API key'),
         '#description' => '<strong>' . $this->t('For security reasons, you will not be able to see the API key even if it is entered.') . '</strong> ' . $this->t('Can be found in your "app" in the Yext developer console.') . $this->t('This is a state variable, not config, so it can differ between environments.'),
         '#default_value' => $key,
-      );
+      ];
       $checkmessage = $this->yextTestString();
       $checkmessagemore = $this->yextTestStringMore();
       $icon = $this->yextTestIcon();
-      $form['yext']['DrupalYext.ajaxYextTest'] = array(
+      $form['yext']['DrupalYext.ajaxYextTest'] = [
         '#type' => 'button',
         '#value' => $this->t('Test the API key'),
         '#description' => $this->t('Attempts to connect to the Yext API.'),
-        '#ajax' => array(
+        '#ajax' => [
           'callback' => '::ajaxYextTest',
           'effect' => 'fade',
           'event' => 'click',
-          'progress' => array(
+          'progress' => [
             'type' => 'throbber',
             'message' => NULL,
-          ),
-        ),
+          ],
+        ],
         '#prefix' => <<< HEREDOC
 <span class="system-status-counter system-status-counter--error">
   <span class="yext-ajaxy" id="check-icon-wrapper">$icon</span>
@@ -192,37 +191,37 @@ class YextSettingsForm extends FormBase {
 HEREDOC
         ,
         '#suffix' => '</span></span></span></span></span><div id="ajax-yext-more">' . $checkmessagemore . '</div>',
-      );
+      ];
     }
     catch (\Throwable $t) {
       $this->watchdogThrowable($t);
     }
     try {
-      $form['yextimport'] = array(
+      $form['yextimport'] = [
         '#type' => 'details',
         '#title' => $this->t('Yext import status'),
         '#description' => $this->t('Assuming Yext integration works, this is where we are at in the import (imports are performed on cron runs).') . ' ' . $this->t('Imports some more data. Be careful using the Import more button because this can timeout with large amounts of data. It is recommended to use "drush ev \'drupal_yext_import_some()\'" on the command line for more heavy-duty imports; the very first time you start importing content, you might to call that several times, for example: for i in `seq 1 100`; do drush ev "drupal_yext_import_some()"; echo $i; done.') . ' ' . $this->t('Resets the API importer to its initial state. Useful for testing.'),
         '#open' => FALSE,
-      );
+      ];
       $imported = $this->yext()->imported();
       $failed = $this->yext()->failed();
       $next_date = $this->yext()->nextDateToImport('Y-m-d');
       $last_check = $this->yext()->lastCheck('Y-m-d H:i:s');
       $remaining = $this->yext()->remaining();
-      $form['yextimport']['DrupalYext.ajaxResetAll'] = array(
+      $form['yextimport']['DrupalYext.ajaxResetAll'] = [
         '#type' => 'button',
         '#value' => $this->t('Reset the API importer'),
-        '#ajax' => array(
+        '#ajax' => [
           'callback' => '::ajaxResetAll',
           'effect' => 'fade',
           'event' => 'click',
-          'progress' => array(
+          'progress' => [
             'type' => 'throbber',
             'message' => NULL,
-          ),
-        ),
-      );
-      $form['yextimport']['details'] = array(
+          ],
+        ],
+      ];
+      $form['yextimport']['details'] = [
         '#type' => 'markup',
         '#markup' => '<ul>
           <li><span class="yext-ajaxy" id="yext-imported">' . $imported . '</span> nodes imported.</li>
@@ -231,31 +230,31 @@ HEREDOC
           <li>Last check: <span class="yext-ajaxy" id="yext-last-check">' . $last_check . '</span>.</li>
           <li><span class="yext-ajaxy" id="yext-remaining">' . $remaining . '</span> nodes remaining.</li>
         <ul>',
-      );
-      $form['yextimport']['DrupalYext.ajaxImportSome'] = array(
+      ];
+      $form['yextimport']['DrupalYext.ajaxImportSome'] = [
         '#type' => 'button',
         '#value' => $this->t('Import more'),
-        '#ajax' => array(
+        '#ajax' => [
           'callback' => '::ajaxYextImportSome',
           'effect' => 'fade',
           'event' => 'click',
-          'progress' => array(
+          'progress' => [
             'type' => 'throbber',
             'message' => NULL,
-          ),
-        ),
-      );
+          ],
+        ],
+      ];
     }
     catch (\Throwable $t) {
       $this->watchdogThrowable($t);
     }
     $this->formAddMappingSection($form);
     $form['actions']['#type'] = 'actions';
-    $form['actions']['submit'] = array(
+    $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save'),
       '#button_type' => 'primary',
-    );
+    ];
     return $form;
   }
 
@@ -283,42 +282,42 @@ HEREDOC
    *   The form object.
    */
   public function formAddMappingSection(array &$form) {
-    $form['fieldmapping'] = array(
+    $form['fieldmapping'] = [
       '#type' => 'details',
       '#title' => $this->t('Yext field mapping'),
       '#description' => $this->t('Map Yext API fields to Drupal fields.'),
       '#open' => FALSE,
-    );
-    $form['fieldmapping']['headshot'] = array(
+    ];
+    $form['fieldmapping']['headshot'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Headshot image field'),
       '#description' => $this->t('The headshot image field which should exist for node type mapped to Yext, for example field_yext_headshot.'),
       '#default_value' => $this->fieldmap()->headshot(),
-    );
-    $form['fieldmapping']['bio'] = array(
+    ];
+    $form['fieldmapping']['bio'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Bio formatted text field'),
       '#description' => $this->t('The bio formatted text field which should exist for node type mapped to Yext, for example "body".'),
       '#default_value' => $this->fieldmap()->bio(),
-    );
-    $form['fieldmapping']['geo'] = array(
+    ];
+    $form['fieldmapping']['geo'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Geofield field'),
       '#description' => $this->t('If you are using the geofield module (and its geoPHP dependency as explained on the project homepage) and have a geofield field (for example field_geofield) in your content type, you can populate it from Yext.'),
       '#default_value' => $this->fieldmap()->geo(),
-    );
-    $form['fieldmapping']['raw'] = array(
+    ];
+    $form['fieldmapping']['raw'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Raw long plain text field'),
       '#description' => $this->t('The raw long plain text field which should exist for node type mapped to Yext, for example field_yext_raw.'),
       '#default_value' => $this->fieldmap()->raw(),
-    );
-    $form['fieldmapping']['yextfieldmapping'] = array(
+    ];
+    $form['fieldmapping']['yextfieldmapping'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Yext field mapping'),
       '#description' => $this->t('Enter Yext field mapping which you get from your Yext account manager or from the API using the technique outlined at http://developer.yext.com/docs/api-reference/#operation/getCustomFields. Please use the format <code>"1234","field_drupal_field","because 1234 is numeric we will look for it in the customFields section of the json object."</code><br/><code>"2345",,"this is not mapped to drupal but exists in yext"</code><br/><code>"address","field_address","because address is non-numeric, we will look for it in the root of the json object."</code><br/><code>"closed][isClosed","field_closed","The ][ notation denotes we want the value of the isClosed key within the closed key, itself being an array."</code>'),
       '#default_value' => $this->fieldmap()->fieldMapping(),
-    );
+    ];
   }
 
   /**
@@ -342,18 +341,6 @@ HEREDOC
     $this->yext()->filtersAsText($input['DrupalYext_filters']);
     $this->yext()->setNextDate($input['DrupalYext_yextnext']);
     $this->drupalSetMessage($this->t('Settings saved successfully.'));
-  }
-
-  /**
-   * Get the Yext singleton.
-   *
-   * @return Yext
-   *   The Yext singleton.
-   *
-   * @throws Exception
-   */
-  public function yext() : Yext {
-    return Yext::instance()->yext();
   }
 
   /**

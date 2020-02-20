@@ -4,6 +4,7 @@ namespace Drupal\drupal_yext\Yext;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
+use Drupal\drupal_yext\SelfTest\SelfTest;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\NodeMigrationOnSave;
@@ -12,6 +13,8 @@ use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextEntity;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
 use Drupal\drupal_yext\YextContent\YextSourceRecordFactory;
+use Drupal\drupal_yext\YextContent\YextTargetNode;
+use Drupal\drupal_yext\YextPluginCollection;
 
 /**
  * Represents the Yext API.
@@ -293,6 +296,30 @@ class Yext {
   }
 
   /**
+   * Given a source Yext record, return a new or existing node.
+   *
+   * @param \Drupal\drupal_yext\YextContent\YextSourceRecord $record
+   *   A record from Yext.
+   *
+   * @return \Drupal\drupal_yext\YextContent\YextTargetNode
+   *   A node on Drupal.
+   */
+  public function getOrCreateUniqueNode(YextSourceRecord $record) : YextTargetNode {
+    $result = [];
+
+    $this->plugins()->alterNodeFromSourceRecord($result, $record);
+
+    // As a last resort, create a brand new node.
+    if (empty($result['target'])) {
+      $result['target'] = YextEntityFactory::instance()->generate('node', $this->yextNodeType());
+      $result['target']->setFieldValue($this->uniqueYextIdFieldName(), $record->getYextId());
+      $result['target']->save();
+    }
+
+    return $result['target'];
+  }
+
+  /**
    * Testable implementation of hook_entity_presave().
    */
   public function hookEntityPresave(EntityInterface $entity) {
@@ -319,12 +346,12 @@ class Yext {
     $requirements = [];
     if ($phase == 'runtime') {
       $test = $this->test();
-      $requirements['DrupalYext.yext.test'] = array(
-        'title' => t('Yext API key'),
-        'description' => t('The API key is set at /admin/config/yext, and is working.'),
+      $requirements['DrupalYext.yext.test'] = [
+        'title' => $this->t('Yext API key'),
+        'description' => $this->t('The API key is set at /admin/config/yext, and is working.'),
         'value' => $test['message'],
         'severity' => $test['success'] ? REQUIREMENT_INFO : REQUIREMENT_ERROR,
-      );
+      ];
     }
     return $requirements;
   }
@@ -379,7 +406,7 @@ class Yext {
       // If a node already exists, use that one; otherwise create a new one.
       // This ensures that we should never have two nodes with the same
       // Yext ID.
-      $destination = empty($nodes[$source->getYextId()]) ? YextEntityFactory::instance()->getOrCreateUniqueNode($this->yextNodeType(), $this->uniqueYextIdFieldName(), $source->getYextId()) : $nodes[$source->getYextId()];
+      $destination = empty($nodes[$source->getYextId()]) ? $this->getOrCreateUniqueNode($source) : $nodes[$source->getYextId()];
 
       $migrator = new NodeMigrationAtCreation($source, $destination);
       try {
@@ -523,6 +550,18 @@ class Yext {
   }
 
   /**
+   * Get all YextPlugin plugins.
+   *
+   * @return \Drupal\drupal_yext\YextPluginCollection
+   *   All plugins.
+   *
+   * @throws \Exception
+   */
+  public function plugins() : YextPluginCollection {
+    return YextPluginCollection::instance();
+  }
+
+  /**
    * Query Yext for a given date.
    *
    * @param string $date
@@ -549,7 +588,7 @@ class Yext {
    * If the config variable "update_raw_on_save" is set, or if the raw field is
    * empty for the entity, this will return TRUE.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   A Drupal entity.
    *
    * @return bool
@@ -602,6 +641,17 @@ class Yext {
     $this->stateSet('drupal_yext_next_import', strtotime('2017-12-10'));
     $this->stateSet('drupal_yext_failed', []);
     $this->stateSet('drupal_yext_last_check', 0);
+  }
+
+  /**
+   * Run some self-tests. Exit with non-zero code if errors occur.
+   *
+   * Usage:
+   *
+   *   ./scripts/self-test-running-environment.sh
+   */
+  public function selftest() {
+    SelfTest::instance()->run();
   }
 
   /**
@@ -714,7 +764,7 @@ class Yext {
   /**
    * Given an entity, update it based on a response from the server.
    *
-   * @param YextEntity $candidate
+   * @param \Drupal\drupal_yext\YextEntity $candidate
    *   An entity to be updated.
    *
    * @throws \Exception
@@ -723,6 +773,10 @@ class Yext {
     $id = $candidate->fieldValue($this->uniqueYextIdFieldName());
     if (!$id) {
       // No ID, nothing to do.
+      return;
+    }
+    if ($this->stateGet('drupal_yext_dryrun', FALSE)) {
+      // For example, during self-tests.
       return;
     }
     try {
@@ -758,7 +812,7 @@ class Yext {
   /**
    * Update the raw data field but only if this is required.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   A Drupal entity.
    *
    * @throws \Exception

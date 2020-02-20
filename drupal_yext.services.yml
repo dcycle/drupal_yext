@@ -1,0 +1,5 @@
+---
+services:
+  plugin.manager.drupal_yext:
+    class: Drupal\drupal_yext\YextPluginManager
+    parent: default_plugin_manager

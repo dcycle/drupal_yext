@@ -20,10 +20,10 @@ class YextEntityFactory {
    *
    * If the entity does not have raw Yext data in it, ignore it.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   A Drupal entity.
    *
-   * @return NodeMigrateDestinationInterface
+   * @return \Drupal\drupal_yext\NodeMigrateDestinationInterface
    *   A destination for migration.
    *
    * @throws \Throwable
@@ -46,13 +46,13 @@ class YextEntityFactory {
   /**
    * Given a Drupal entity, return a Yext Entity.
    *
-   * @param EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   A Drupal entity.
    *
-   * @return YextEntity
+   * @return \Drupal\drupal_yext\YextEntity
    *   A Yext-specific wrapper for a Drupal entity.
    *
-   * @throws Exception
+   * @throws \Exception
    */
   public function entity(EntityInterface $entity) : YextEntity {
     if (is_a($entity, Node::class)) {
@@ -92,33 +92,6 @@ class YextEntityFactory {
   }
 
   /**
-   * Create a node with a unique value for a field, or get existing one.
-   *
-   * @param string $node_type
-   *   A node type such as 'doctor' or 'article'.
-   * @param string $field_name
-   *   A field name such as 'field_external_system_id'.
-   * @param string $field_value
-   *   Field value for $field_name.
-   *
-   * @return YextTargetNode
-   *   Object of type YextTargetNode which has already been saved, and which
-   *   has an id.
-   *
-   * @throws Exception
-   */
-  public function getOrCreateUniqueNode(string $node_type, string $field_name, $field_value) : YextTargetNode {
-    $candidates = $this->preloadUniqueNodes($node_type, $field_name, [$field_value]);
-    if (isset($candidates[$field_value])) {
-      return $candidates[$field_value];
-    }
-    $return = $this->generate('node', $node_type);
-    $return->setFieldValue($field_name, $field_value);
-    $return->save();
-    return $return;
-  }
-
-  /**
    * Assuming a unique field_name, load nodes for those field names.
    *
    * An exception is thrown if two or more nodes share the same value for
@@ -147,7 +120,7 @@ class YextEntityFactory {
     $query->condition($field_name, $field_values, 'IN');
 
     $nids = $query->execute();
-    $nodes = node_load_multiple($nids);
+    $nodes = Node::loadMultiple($nids);
     $return = [];
     foreach ($nodes as $node) {
       $entity = $this->entity($node);

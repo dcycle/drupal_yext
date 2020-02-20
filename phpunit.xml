@@ -3,6 +3,7 @@
   <testsuites>
     <testsuite name="myproject">
       <directory>./test</directory>
+      <directory>./modules/drupal_yext_find_by_title/tests</directory>
     </testsuite>
   </testsuites>
 </phpunit>
