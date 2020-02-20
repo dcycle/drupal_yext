@@ -775,6 +775,10 @@ class Yext {
       // No ID, nothing to do.
       return;
     }
+    if ($this->stateGet('drupal_yext_dryrun', FALSE)) {
+      // For example, during self-tests.
+      return;
+    }
     try {
       // We now have an ID, we need to populate the raw data and, if we have
       // an error, unpublish the node.

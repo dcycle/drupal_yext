@@ -13,6 +13,7 @@
 spl_autoload_register(function ($class) {
   $custom_code = [
     'drupal_yext' => '.',
+    'drupal_yext_find_by_title' => './modules/drupal_yext_find_by_title',
   ];
 
   require_once 'phpunit-bootstrap.php';

@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @group expose_status
  */
-class TestFindByTitle extends TestCase {
+class TestFindByTitleTest extends TestCase {
 
   /**
    * Smoke test.
