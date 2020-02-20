@@ -1,0 +1,8 @@
+---
+name: Drupal Yext Find By Title
+type: module
+description: Automatically updates nodes entered manually previous to the installation of this drupal_yext.
+core: '8.x'
+php: '7.x'
+dependencies:
+  - drupal_yext:drupal_yext

@@ -4,6 +4,7 @@ namespace Drupal\drupal_yext\Plugin\YextPlugin;
 
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
+use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextPluginBase;
 
 /**

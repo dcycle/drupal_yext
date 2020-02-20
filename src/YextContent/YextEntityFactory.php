@@ -120,7 +120,7 @@ class YextEntityFactory {
     $query->condition($field_name, $field_values, 'IN');
 
     $nids = $query->execute();
-    $nodes = node_load_multiple($nids);
+    $nodes = Node::loadMultiple($nids);
     $return = [];
     foreach ($nodes as $node) {
       $entity = $this->entity($node);

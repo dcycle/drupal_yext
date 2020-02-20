@@ -4,6 +4,7 @@ namespace Drupal\drupal_yext\Yext;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
+use Drupal\drupal_yext\SelfTest\SelfTest;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\YextContent\NodeMigrationOnSave;
@@ -12,6 +13,7 @@ use Drupal\drupal_yext\YextContent\YextSourceRecord;
 use Drupal\drupal_yext\YextContent\YextEntity;
 use Drupal\drupal_yext\YextContent\YextEntityFactory;
 use Drupal\drupal_yext\YextContent\YextSourceRecordFactory;
+use Drupal\drupal_yext\YextContent\YextTargetNode;
 use Drupal\drupal_yext\YextPluginCollection;
 
 /**
@@ -639,6 +641,17 @@ class Yext {
     $this->stateSet('drupal_yext_next_import', strtotime('2017-12-10'));
     $this->stateSet('drupal_yext_failed', []);
     $this->stateSet('drupal_yext_last_check', 0);
+  }
+
+  /**
+   * Run some self-tests. Exit with non-zero code if errors occur.
+   *
+   * Usage:
+   *
+   *   ./scripts/self-test-running-environment.sh
+   */
+  public function selftest() {
+    SelfTest::instance()->run();
   }
 
   /**
