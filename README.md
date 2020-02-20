@@ -57,6 +57,11 @@ You will need to either add your own cron job or add:
 
 to your custom module's cron hook implementation.
 
+Have manually created Yext node
+-----
+
+Let's say you created a "Location" node "Dr. Jane Smith", and then you enable this module to automatically import items from Yext, if a "Dr. Jane Smith" exists in Yext, then a new node will be created. If you want to update an existing node if it has the same title as a Yext `locationName`, you can enable the included `drupal_yext_find_by_title` module.
+
 Issue queue and pull requests
 -----
 
