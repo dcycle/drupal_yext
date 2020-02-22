@@ -410,7 +410,7 @@ class Yext {
 
       $migrator = new NodeMigrationAtCreation($source, $destination);
       try {
-        $result = $migrator->migrate() ? 'migration occurred' : 'migration skipped, probably becaue update time is identical in source/dest.';
+        $result = $migrator->migrate() ? 'migration occurred' : 'migration skipped, probably because update time is identical in source/dest.';
         $this->watchdog('Yext ' . $result . ' for ' . $source->getYextId() . ' to ' . $destination->id());
         $this->incrementSuccess();
       }
