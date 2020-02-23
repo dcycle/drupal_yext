@@ -49,7 +49,7 @@ class SelfTest {
       $this->print('TEST PASSED');
     }
     else {
-      $this->print('TEST FALED :( KILLING THE PROCESS');
+      $this->print('TEST FAILED :( KILLING THE PROCESS');
       throw new \Exception('Test failed');
     }
   }
@@ -198,6 +198,51 @@ class SelfTest {
         'timestamp' => 1,
       ]);
 
+      $entityImport = $this->mockMigrate([
+        'id' => 'not important ' . rand(),
+        'locationName' => rand() . ' RANDOM',
+        'customFields' => [
+          '123' => 'hello',
+          '345' => [
+            'hello',
+            'world',
+          ],
+        ],
+        'single' => 'hello2',
+        'multi' => [
+          'hello2',
+          'world2',
+        ],
+        'timestamp' => 1,
+      ]);
+
+      $this->assert($entityImport->drupal_entity->get('field_numeric_single')->getValue(), [
+        [
+          "value" => "hello",
+        ],
+      ], 'field_numeric_single import works');
+      $this->assert($entityImport->drupal_entity->get('field_numeric_multi')->getValue(), [
+        [
+          "value" => "hello",
+        ],
+        [
+          "value" => "world",
+        ],
+      ], 'field_numeric_multi import works');
+      $this->assert($entityImport->drupal_entity->get('field_non_numeric_single')->getValue(), [
+        [
+          "value" => "hello2",
+        ],
+      ], 'field_non_numeric_single import works');
+      $this->assert($entityImport->drupal_entity->get('field_non_numeric_multi')->getValue(), [
+        [
+          "value" => "hello2",
+        ],
+        [
+          "value" => "world2",
+        ],
+      ], 'field_non_numeric_multi import works');
+
       $this->assert(TRUE, in_array($entity4->id(), array_keys($dummy_nodes)), 'Uses existing node if possible (1).');
       $this->assert(FALSE, in_array($entity5->id(), array_keys($dummy_nodes)), 'Uses new node if existing title is ambiguous.');
       $this->assert(TRUE, in_array($entity6->id(), array_keys($dummy_nodes)), 'Uses existing node if possible (2).');
@@ -206,6 +251,7 @@ class SelfTest {
     }
     catch (\Throwable $t) {
       $error = TRUE;
+      $this->print($t->getMessage());
       $this->print('An error occurred, aborting.');
     }
 
@@ -221,6 +267,10 @@ class SelfTest {
 
     if ($entity5) {
       $entity5->drupal_entity->delete();
+    }
+
+    if ($entityImport) {
+      $entityImport->drupal_entity->delete();
     }
 
     $this->stateSet('drupal_yext_api', $live_key);

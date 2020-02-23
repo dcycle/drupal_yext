@@ -30,11 +30,9 @@ class YextNonNumericFieldParser extends YextPluginBase {
    * {@inheritdoc}
    */
   public function doParseSourceRecord(YextSourceRecord $source_record, string $field_id, array &$data) {
-    $data = [
-      $source_record->parseElem('string', explode('][', $field_id), '', FALSE, '', [
-        'cast-as-type' => TRUE,
-      ]),
-    ];
+    $candidate = $source_record->parseElem(['array', 'string'], explode('][', $field_id), '', FALSE, '');
+
+    $data = is_array($candidate) ? $candidate : [$candidate];
   }
 
 }

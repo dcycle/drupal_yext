@@ -25,7 +25,7 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    * {@inheritdoc}
    */
   public function getBio() : string {
-    return $this->parseElem('string', ['description'], '');
+    return $this->parseElem(['string'], ['description'], '');
   }
 
   /**
@@ -33,8 +33,8 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    */
   public function getGeo() : array {
     try {
-      $lat = $this->parseElem('double', ['yextDisplayLat'], 0.0);
-      $lon = $this->parseElem('double', ['yextDisplayLng'], 0.0);
+      $lat = $this->parseElem(['double'], ['yextDisplayLat'], 0.0);
+      $lon = $this->parseElem(['double'], ['yextDisplayLng'], 0.0);
       if (!$lon) {
         return [];
       }
@@ -54,9 +54,7 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    */
   public function getCustom(string $id) : array {
     $return = [];
-    foreach ($this->yext()->plugins() as $plugin) {
-      $plugin->parseSourceElem($this, $id, $return);
-    }
+    $this->yext()->plugins()->parseSourceElem($this, $id, $return);
     return $return;
   }
 
@@ -64,28 +62,28 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    * {@inheritdoc}
    */
   public function getHeadshot() : string {
-    return $this->parseElem('string', ['headshot', 'url'], '');
+    return $this->parseElem(['string'], ['headshot', 'url'], '');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getName() : string {
-    return $this->parseElem('string', ['locationName'], '');
+    return $this->parseElem(['string'], ['locationName'], '');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getYextId() : string {
-    return $this->parseElem('string', ['id'], '', TRUE, 'The Node ID on Yext is required because that is how we track which Drupal nodes are linked to which nodes');
+    return $this->parseElem(['string'], ['id'], '', TRUE, 'The Node ID on Yext is required because that is how we track which Drupal nodes are linked to which nodes');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getYextLastUpdate() : int {
-    return $this->parseElem('integer', ['timestamp'], 0, TRUE, 'The last update (timestamp) field on Yext is required because that is how we track whether nodes are out of date on Drupal.');
+    return $this->parseElem(['integer'], ['timestamp'], 0, TRUE, 'The last update (timestamp) field on Yext is required because that is how we track whether nodes are out of date on Drupal.');
   }
 
   /**
@@ -98,9 +96,9 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
   /**
    * Wrapper around CommonUtilities::assocArrayElem() using our structure.
    */
-  public function parseElem(string $type, array $keys, $default, bool $required = FALSE, $required_message = '', $options = []) : string {
+  public function parseElem(array $types, array $keys, $default, bool $required = FALSE, $required_message = '', $options = []) {
     try {
-      $return = $this->assocArrayElem($this->structure, $type, $keys, $default, $required, $required_message, $options);
+      $return = $this->assocArrayElem($this->structure, $types, $keys, $default, $required, $required_message, $options);
     }
     catch (\Throwable $t) {
       $this->watchdogThrowable($t);

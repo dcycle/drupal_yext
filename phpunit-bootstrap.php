@@ -14,3 +14,7 @@
 namespace Drupal\Core\Form {
   class FormBase {}
 }
+
+namespace Drupal\Component\Plugin {
+  class PluginBase {}
+}

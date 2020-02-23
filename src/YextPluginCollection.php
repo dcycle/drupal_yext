@@ -13,6 +13,15 @@ class YextPluginCollection implements YextPluginInterface {
   use Singleton;
 
   /**
+   * {@inheritdoc}
+   */
+  public function parseSourceElem(YextSourceRecord $source_record, string $field_id, array &$data) {
+    foreach ($this->plugins() as $plugin) {
+      $plugin->parseSourceElem($source_record, $field_id, $data);
+    }
+  }
+
+  /**
    * Mockable wrapper around \Drupal::service('plugin.manager.drupal_yext').
    *
    * @return mixed

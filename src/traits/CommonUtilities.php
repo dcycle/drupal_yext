@@ -27,8 +27,8 @@ trait CommonUtilities {
    *
    * @param array $array
    *   An associative array such as [a => [b => c]].
-   * @param string $type
-   *   The expected type of c.
+   * @param array $types
+   *   The expectable types of c.
    * @param array $keys
    *   The path to the data we want, for example [a, b].
    * @param mixed $default
@@ -41,17 +41,21 @@ trait CommonUtilities {
    *   A message to add to the exception in case the data is not
    *   present but required.
    * @param array $options
-   *   Can contain cast-as-type (TRUE or FALSE, FALSE being default).
+   *   Can contain cast-as-type (TRUE or FALSE, FALSE being default), if TRUE
+   *   we will cast to the first type in $types.
    *
    * @return mixed
    *   Data of type $type.
    *
    * @throws \Throwable
    */
-  public function assocArrayElem(array $array, string $type, array $keys, $default, bool $required = FALSE, string $required_message = '', array $options = []) {
+  public function assocArrayElem(array $array, array $types, array $keys, $default, bool $required = FALSE, string $required_message = '', array $options = []) {
+    if (!count($types)) {
+      throw new \Exception('The types argument cannot be empty.');
+    }
     $default_type = gettype($default);
-    if ($default_type != $type) {
-      throw new \Exception('Default value type is ' . $default_type . ', not ' . $type);
+    if (!in_array($default_type, $types)) {
+      throw new \Exception('Default value type is ' . $default_type . ', not in ' . implode(', ', $types));
     }
     $structure = $array;
     foreach ($keys as $key) {
@@ -68,12 +72,12 @@ trait CommonUtilities {
       $structure = $structure[$key];
     }
     $mytype = gettype($structure);
-    if ($mytype != $type) {
+    if (!in_array($mytype, $types)) {
       if (!empty($options['cast-as-type'])) {
-        $structure = settype($structure, $type);
+        $structure = settype($structure, $types[0]);
       }
       else {
-        throw new \Exception('The return structure is ' . $mytype . ', not ' . $type);
+        throw new \Exception('The return structure is ' . $mytype . ', not in ' . implode(', ', $types));
       }
     }
     return $structure;
