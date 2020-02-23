@@ -1,0 +1,8 @@
+---
+name: Drupal Yext Sync Deleted
+type: module
+description: Polls Yext periodically to find deleted nodes.
+core: '8.x'
+php: '7.x'
+dependencies:
+  - drupal_yext:drupal_yext
