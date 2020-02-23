@@ -2,6 +2,7 @@ module:
   block: 0
   dblog: 0
   drupal_yext: 0
+  drupal_yext_find_by_title: 0
   dynamic_page_cache: 0
   field: 0
   field_ui: 0

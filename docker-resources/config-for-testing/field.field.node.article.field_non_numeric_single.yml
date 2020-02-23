@@ -1,0 +1,19 @@
+uuid: a92bf375-0260-479e-8bfe-712388a31218
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_non_numeric_single
+    - node.type.article
+id: node.article.field_non_numeric_single
+field_name: field_non_numeric_single
+entity_type: node
+bundle: article
+label: 'Non Numeric Single'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

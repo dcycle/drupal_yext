@@ -1,0 +1,21 @@
+uuid: bcdde18f-405e-44bf-ad1e-02a1804e2b80
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_non_numeric_single
+field_name: field_non_numeric_single
+entity_type: node
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
