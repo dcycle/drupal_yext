@@ -78,12 +78,12 @@ interface NodeMigrateDestinationInterface {
    *
    * @param string $id
    *   A field name.
-   * @param string $value
-   *   A value.
+   * @param array $values
+   *   Array of values.
    *
    * @throws \Throwable
    */
-  public function setCustom(string $id, string $value);
+  public function setCustom(string $id, array $values);
 
   /**
    * Set the last time Yext was updated or synchronized.

@@ -52,13 +52,12 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCustom(string $id) : string {
-    if (is_numeric($id)) {
-      return $this->parseElem('string', ['customFields', $id], '', FALSE, '', ['cast-as-type' => TRUE]);
+  public function getCustom(string $id) : array {
+    $return = [];
+    foreach ($this->yext()->plugins() as $plugin) {
+      $plugin->parseSourceElem($this, $id, $return);
     }
-    else {
-      return $this->parseElem('string', explode('][', $id), '', FALSE, '', ['cast-as-type' => TRUE]);
-    }
+    return $return;
   }
 
   /**

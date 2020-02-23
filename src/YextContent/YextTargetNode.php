@@ -96,8 +96,11 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
   /**
    * {@inheritdoc}
    */
-  public function setCustom(string $id, string $value) {
-    $this->drupal_entity->set($id, $value);
+  public function setCustom(string $id, array $values) {
+    // In Drupal, the second argument to set() can be either an array (as is
+    // the case here), or a single item which is interpreted the same way as
+    // as 1-count array.
+    $this->drupal_entity->set($id, $values);
   }
 
   /**
