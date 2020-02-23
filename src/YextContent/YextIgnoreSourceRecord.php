@@ -24,8 +24,8 @@ class YextIgnoreSourceRecord implements NodeMigrateSourceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCustom(string $id) : string {
-    return '';
+  public function getCustom(string $id) : array {
+    return [];
   }
 
   /**

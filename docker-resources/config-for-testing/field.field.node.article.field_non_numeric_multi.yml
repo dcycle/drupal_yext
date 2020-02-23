@@ -1,0 +1,19 @@
+uuid: a714ca73-9f5d-4957-85a5-e8327870d718
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_non_numeric_multi
+    - node.type.article
+id: node.article.field_non_numeric_multi
+field_name: field_non_numeric_multi
+entity_type: node
+bundle: article
+label: 'Non Numeric Multi'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

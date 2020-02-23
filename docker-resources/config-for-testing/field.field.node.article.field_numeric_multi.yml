@@ -1,0 +1,19 @@
+uuid: 9dc4e609-03d6-4982-b54e-e697a04695e6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_numeric_multi
+    - node.type.article
+id: node.article.field_numeric_multi
+field_name: field_numeric_multi
+entity_type: node
+bundle: article
+label: 'Numeric Multi'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

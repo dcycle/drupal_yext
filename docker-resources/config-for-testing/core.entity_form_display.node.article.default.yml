@@ -5,6 +5,10 @@ dependencies:
   config:
     - field.field.node.article.body
     - field.field.node.article.field_image
+    - field.field.node.article.field_non_numeric_multi
+    - field.field.node.article.field_non_numeric_single
+    - field.field.node.article.field_numeric_multi
+    - field.field.node.article.field_numeric_single
     - field.field.node.article.field_yext_last_updated
     - field.field.node.article.field_yext_raw
     - field.field.node.article.field_yext_unique_id
@@ -41,6 +45,38 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
     type: image_image
+    region: content
+  field_non_numeric_multi:
+    weight: 129
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_non_numeric_single:
+    weight: 128
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_numeric_multi:
+    weight: 127
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_numeric_single:
+    weight: 126
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
     region: content
   field_yext_last_updated:
     weight: 123

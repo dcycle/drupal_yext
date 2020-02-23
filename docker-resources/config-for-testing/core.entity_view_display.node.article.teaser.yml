@@ -6,6 +6,10 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.article.body
     - field.field.node.article.field_image
+    - field.field.node.article.field_non_numeric_multi
+    - field.field.node.article.field_non_numeric_single
+    - field.field.node.article.field_numeric_multi
+    - field.field.node.article.field_numeric_single
     - field.field.node.article.field_yext_last_updated
     - field.field.node.article.field_yext_raw
     - field.field.node.article.field_yext_unique_id
@@ -33,6 +37,10 @@ content:
     region: content
 hidden:
   field_image: true
+  field_non_numeric_multi: true
+  field_non_numeric_single: true
+  field_numeric_multi: true
+  field_numeric_single: true
   field_yext_last_updated: true
   field_yext_raw: true
   field_yext_unique_id: true

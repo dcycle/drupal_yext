@@ -53,12 +53,12 @@ interface NodeMigrateSourceInterface {
    * @param string $id
    *   A field ID.
    *
-   * @return string
-   *   A value, or empty string.
+   * @return array
+   *   An array of values.
    *
    * @throws \Throwable
    */
-  public function getCustom(string $id) : string;
+  public function getCustom(string $id) : array;
 
   /**
    * Get a unique Yext ID.
