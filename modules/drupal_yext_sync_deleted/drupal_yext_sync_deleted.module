@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations.
+ */
+
+use Drupal\drupal_yext_sync_deleted\YextSyncDeleted;
+
+/**
+ * Implements hook_requirements().
+ */
+function drupal_yext_sync_deleted_cron() {
+  return YextSyncDeleted::instance()->hookCron();
+}

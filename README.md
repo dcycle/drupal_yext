@@ -57,7 +57,32 @@ You will need to either add your own cron job or add:
 
 to your custom module's cron hook implementation.
 
-Have manually created Yext node
+Deleting Yext entities
+-----
+
+This can be tested by logging onto the Yext backend interface, and clicking "+ Add Entity" : "Add single entity".
+
+Your new entity must contain:
+
+* A first name
+* A last name
+* A dummy address (you will get "Address is not valid" and you can click "use anyway - not recommended")
+* Once you save, the Entity ID field will be populated with something like "3052937228426523195".
+
+You can now create a new Drupal node. Make its title "whatever" and fill in its Yext Unique ID field with the Entity ID from above (for example 3052937228426523195). When you save it, Yext will fetch the dummy data.
+
+Now go back to Yext and, in "Select action", select "Delete entity".
+
+Herein lies the problem: the next time we attempt to fetch changes from the Yext API, we are not informed that "3052937228426523195" has been deleted, so it can remain present in Drupal even if it is gone from Yext.
+
+This is why we recommend not deleting Yext nodes, but rather having something like a custom "permenently closed" field. But, if you do delete Yext nodes like this, you can enable the drupal_yext_sync_deleted module which will:
+
+* periodically check Yext for one nodes, thus eventually cycling through all nodes and starting again.
+* unpublish them and set their IDs to "DELETED IN YEXT - ...", and unpublish them, if they have been deleted from Yext.
+
+Yext will return a Page Not Found in case an item has been deleted. **Please be advised that if there is a problem with Yext when we are checking whether an entity is deleted, the entity will be marked as deleted nonetheless; therefore, the drupal_yext_sync_deleted should be considered a work in progress.** 
+
+Have Yext nodes you manually created prior to installing this module?
 -----
 
 Let's say you created a "Location" node "Dr. Jane Smith", and then you enable this module to automatically import items from Yext, if a "Dr. Jane Smith" exists in Yext, then a new node will be created. If you want to update an existing node if it has the same title as a Yext `locationName`, you can enable the included `drupal_yext_find_by_title` module.

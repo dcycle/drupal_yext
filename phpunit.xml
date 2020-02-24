@@ -4,6 +4,7 @@
     <testsuite name="myproject">
       <directory>./test</directory>
       <directory>./modules/drupal_yext_find_by_title/tests</directory>
+      <directory>./modules/drupal_yext_sync_deleted/tests</directory>
     </testsuite>
   </testsuites>
 </phpunit>
