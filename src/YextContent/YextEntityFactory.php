@@ -125,8 +125,13 @@ class YextEntityFactory {
     foreach ($nodes as $node) {
       $entity = $this->entity($node);
       $unique = $entity->fieldValue($field_name);
-      if (isset($return[$unique])) {
-        throw new \Exception('More than one node seems to have the same value (' . $unique . ') which should be unique for ' . $field_name . ', ' . $entity->id() . ' and ' . $return[$unique]->id());
+      if (!isset($return[$unique])) {
+        if ($this->stateGet('drupal_yext_autodelete_duplicates', FALSE)) {
+          $node->delete();
+        }
+        else {
+          throw new \Exception('More than one node seems to have the same value (' . $unique . ') which should be unique for ' . $field_name . ', ' . $entity->id() . ' and ' . $return[$unique]->id());
+        }
       }
       $return[$unique] = $entity;
     }
