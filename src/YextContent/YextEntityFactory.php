@@ -125,7 +125,7 @@ class YextEntityFactory {
     foreach ($nodes as $node) {
       $entity = $this->entity($node);
       $unique = $entity->fieldValue($field_name);
-      if (!isset($return[$unique])) {
+      if (isset($return[$unique])) {
         if ($this->stateGet('drupal_yext_autodelete_duplicates', FALSE)) {
           $node->delete();
         }
