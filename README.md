@@ -78,7 +78,9 @@ Herein lies the problem: the next time we attempt to fetch changes from the Yext
 This is why we recommend not deleting Yext nodes, but rather having something like a custom "permenently closed" field. But, if you do delete Yext nodes like this, you can enable the drupal_yext_sync_deleted module which will:
 
 * periodically check Yext for one nodes, thus eventually cycling through all nodes and starting again.
-* unpublish them and set their titles to "DELETED IN YEXT - ..." if they have been deleted from Yext.
+* unpublish them and set their IDs to "DELETED IN YEXT - ...", and unpublish them, if they have been deleted from Yext.
+
+Yext will return a Page Not Found in case an item has been deleted. **Please be advised that if there is a problem with Yext when we are checking whether an entity is deleted, the entity will be marked as deleted nonetheless; therefore, the drupal_yext_sync_deleted should be considered a work in progress.** 
 
 Have Yext nodes you manually created prior to installing this module?
 -----

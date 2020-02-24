@@ -40,11 +40,6 @@ class YextSyncDeleted {
 
     $nids = $this->someNids($drupal_nids);
 
-    print_r([
-      $drupal_nids,
-      $nids,
-    ]);
-
     foreach (Node::loadMultiple($nids) as $node) {
       $this->syncDeleted($node);
     }
@@ -160,7 +155,6 @@ class YextSyncDeleted {
       return TRUE;
     }
     catch (\Exception $e) {
-      print_r(get_class($e));
       return FALSE;
     }
   }
