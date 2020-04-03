@@ -38,6 +38,34 @@ class Yext {
   }
 
   /**
+   * Perform a function on all active nodes of a target type.
+   *
+   * Active nodes are nodes that have a non-empty Yext ID.
+   *
+   * @param string $log_function
+   *   A log function such as 'print_r'.
+   * @param int $chunk_size
+   *   If you have a very large number of nodes, to avoid memory issues, you
+   *   might want to have a chunk size of, say, 100.
+   * @param string $log_message
+   *   A log message.
+   * @param string $function
+   *   A function such as delete or save.
+   */
+  protected function actionOnAllExisting(string $log_function = 'print_r', int $chunk_size, string $log_message, string $function) {
+    $start = 0;
+    $i = 0;
+    while ($nodes = $this->getAllExisting($start, $chunk_size)) {
+      $log_function('   => Processing chunk ' . $i++ . PHP_EOL);
+      foreach ($nodes as $node) {
+        $log_function($log_message . ' ' . $node->id() . PHP_EOL);
+        $node->$function();
+      }
+      $start += $chunk_size;
+    }
+  }
+
+  /**
    * Given a URL, adds filters.
    *
    * @param string $url
@@ -189,12 +217,12 @@ class Yext {
    *
    * @param string $log_function
    *   A log function such as 'print_r'.
+   * @param int $chunk_size
+   *   If you have a very large number of nodes, to avoid memory issues, you
+   *   might want to have a chunk size of, say, 100.
    */
-  public function deleteAllExisting(string $log_function = 'print_r') {
-    foreach ($this->getAllExisting() as $node) {
-      $log_function('permanently deleting node ' . $node->id() . PHP_EOL);
-      $node->delete();
-    }
+  public function deleteAllExisting(string $log_function = 'print_r', int $chunk_size = PHP_INT_MAX) {
+    return $this->actionOnAllExisting($log_function, $chunk_size, 'permanently deleting node', 'delete');
   }
 
   /**
@@ -213,13 +241,21 @@ class Yext {
    * This is meant to load only the nodes which are linked to Yext entities.
    * We will want to ignore nodes which were created manually.
    *
+   * @param int $start
+   *   The offset, by default 0.
+   * @param int $length
+   *   The length of the desired array, by default all items. If you get out
+   *   of memory errors, you can try something like 50 here. In which case
+   *   in the next call you can call this with a start of 50.
+   *
    * @return array
    *   Array of Drupal nodes.
    */
-  public function getAllExisting() : array {
+  public function getAllExisting(int $start = 0, int $length = PHP_INT_MAX) : array {
     $nids = \Drupal::entityQuery('node')
       ->condition('type', $this->yextNodeType())
       ->condition($this->uniqueYextIdFieldName(), NULL, '<>')
+      ->range($start, $length)
       ->execute();
     return Node::loadMultiple($nids);
   }
@@ -630,12 +666,12 @@ class Yext {
    *
    * @param string $log_function
    *   A log function such as 'print_r'.
+   * @param int $chunk_size
+   *   If you have a very large number of nodes, to avoid memory issues, you
+   *   might want to have a chunk size of, say, 100.
    */
-  public function resaveAllExisting(string $log_function = 'print_r') {
-    foreach ($this->getAllExisting() as $node) {
-      $log_function('resaving existing node ' . $node->id() . PHP_EOL);
-      $node->save();
-    }
+  public function resaveAllExisting(string $log_function = 'print_r', int $chunk_size = PHP_INT_MAX) {
+    return $this->actionOnAllExisting($log_function, $chunk_size, 'resaving existing node', 'save');
   }
 
   /**
