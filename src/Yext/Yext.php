@@ -208,13 +208,19 @@ class Yext {
   }
 
   /**
-   * Get all existing nodes of the target type.
+   * Get all existing nodes of the target type if it has a Yext ID.
+   *
+   * This is meant to load only the nodes which are linked to Yext entities.
+   * We will want to ignore nodes which were created manually.
    *
    * @return array
    *   Array of Drupal nodes.
    */
   public function getAllExisting() : array {
-    $nids = \Drupal::entityQuery('node')->condition('type', $this->yextNodeType())->execute();
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', $this->yextNodeType())
+      ->condition($this->uniqueYextIdFieldName(), NULL, '<>')
+      ->execute();
     return Node::loadMultiple($nids);
   }
 
