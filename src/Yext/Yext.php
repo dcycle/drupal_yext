@@ -52,7 +52,7 @@ class Yext {
    * @param string $function
    *   A function such as delete or save.
    */
-  protected function actionOnAllExisting(string $log_function = 'print_r', int $chunk_size, string $log_message, string $function) {
+  protected function actionOnAllExisting(string $log_function, int $chunk_size, string $log_message, string $function) {
     $start = 0;
     $i = 0;
     while ($nodes = $this->getAllExisting($start, $chunk_size)) {
