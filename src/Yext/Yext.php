@@ -51,8 +51,11 @@ class Yext {
    *   A log message.
    * @param string $function
    *   A function such as delete or save.
+   * @param bool $increment
+   *   Whether or not to increment between chunks. If deleting, it is best to
+   *   set to FALSE.
    */
-  protected function actionOnAllExisting(string $log_function, int $chunk_size, string $log_message, string $function) {
+  protected function actionOnAllExisting(string $log_function, int $chunk_size, string $log_message, string $function, bool $increment = TRUE) {
     $start = 0;
     $i = 0;
     while ($nodes = $this->getAllExisting($start, $chunk_size)) {
@@ -61,7 +64,9 @@ class Yext {
         $log_function($log_message . ' ' . $node->id() . PHP_EOL);
         $node->$function();
       }
-      $start += $chunk_size;
+      if ($increment) {
+        $start += $chunk_size;
+      }
     }
   }
 
@@ -222,7 +227,7 @@ class Yext {
    *   might want to have a chunk size of, say, 100.
    */
   public function deleteAllExisting(string $log_function = 'print_r', int $chunk_size = PHP_INT_MAX) {
-    return $this->actionOnAllExisting($log_function, $chunk_size, 'permanently deleting node', 'delete');
+    return $this->actionOnAllExisting($log_function, $chunk_size, 'permanently deleting node', 'delete', FALSE);
   }
 
   /**
