@@ -54,11 +54,13 @@ class Yext {
    * @param bool $increment
    *   Whether or not to increment between chunks. If deleting, it is best to
    *   set to FALSE.
+   * @param int $start_at
+   *   The first node id to use.
    */
-  protected function actionOnAllExisting(string $log_function, int $chunk_size, string $log_message, string $function, bool $increment = TRUE) {
+  protected function actionOnAllExisting(string $log_function, int $chunk_size, string $log_message, string $function, bool $increment = TRUE, int $start_at = 0) {
     $start = 0;
     $i = 0;
-    while ($nodes = $this->getAllExisting($start, $chunk_size)) {
+    while ($nodes = $this->getAllExisting($start, $chunk_size, $start_at)) {
       $log_function('   => Processing chunk ' . $i++ . PHP_EOL);
       foreach ($nodes as $node) {
         $log_function($log_message . ' ' . $node->id() . PHP_EOL);
@@ -252,12 +254,15 @@ class Yext {
    *   The length of the desired array, by default all items. If you get out
    *   of memory errors, you can try something like 50 here. In which case
    *   in the next call you can call this with a start of 50.
+   * @param int $start_at
+   *   The first node id to use.
    *
    * @return array
    *   Array of Drupal nodes.
    */
-  public function getAllExisting(int $start = 0, int $length = PHP_INT_MAX) : array {
+  public function getAllExisting(int $start = 0, int $length = PHP_INT_MAX, int $start_at = 0) : array {
     $nids = \Drupal::entityQuery('node')
+      ->condition('nid', $start_at, '>=')
       ->condition('type', $this->yextNodeType())
       ->condition($this->uniqueYextIdFieldName(), NULL, '<>')
       ->range($start, $length)
@@ -674,9 +679,11 @@ class Yext {
    * @param int $chunk_size
    *   If you have a very large number of nodes, to avoid memory issues, you
    *   might want to have a chunk size of, say, 100.
+   * @param int $start_at
+   *   The first node id to use.
    */
-  public function resaveAllExisting(string $log_function = 'print_r', int $chunk_size = PHP_INT_MAX) {
-    return $this->actionOnAllExisting($log_function, $chunk_size, 'resaving existing node', 'save');
+  public function resaveAllExisting(string $log_function = 'print_r', int $chunk_size = PHP_INT_MAX, int $start_at = 0) {
+    return $this->actionOnAllExisting($log_function, $chunk_size, 'resaving existing node', 'save', TRUE, $start_at);
   }
 
   /**
