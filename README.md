@@ -80,7 +80,7 @@ This is why we recommend not deleting Yext nodes, but rather having something li
 * periodically check Yext for one nodes, thus eventually cycling through all nodes and starting again.
 * unpublish them and set their IDs to "DELETED IN YEXT - ...", and unpublish them, if they have been deleted from Yext.
 
-Yext will return a Page Not Found in case an item has been deleted. **Please be advised that if there is a problem with Yext when we are checking whether an entity is deleted, the entity will be marked as deleted nonetheless; therefore, the drupal_yext_sync_deleted should be considered a work in progress.** 
+Yext will return a Page Not Found in case an item has been deleted. **Please be advised that if there is a problem with Yext when we are checking whether an entity is deleted, the entity will be marked as deleted nonetheless; therefore, the drupal_yext_sync_deleted should be considered a work in progress.**
 
 Have Yext nodes you manually created prior to installing this module?
 -----
@@ -104,15 +104,15 @@ Go to /admin/config/yext/yext, in the "Basic Node Information" section, and:
 
 If you add new mapping but already have nodes in your system, you can run:
 
-    drush ev "\Drupal\drupal_yext\Yext\Yext::instance()->resaveAllExisting('print_r', 100)"
+    drush ev "drupal_yext()->resaveAllExisting('print_r', 100, 0)"
 
-In the above example, we are using print_r as a logging function, and chunk sizes of 100 when saving collections of nodes. You can tweak that number if you are getting memory errors.
+In the above example, we are using print_r as a logging function, and chunk sizes of 100 when saving collections of nodes. You can tweak that number if you are getting memory errors. The last parameter, 0, means we'll resave all nodes. If you have a very large data set, and your script crashes at node, say, 549221, you re-run the above script with 549221 as a third parameter.
 
 Be careful as this will **overwrite** all fields in your target node type with data taken from the Yext raw API output in your node's "yext raw data" field. Back up your database before trying this, please.
 
 If you want to delete all existing nodes of the target type, obviously back up your database, and run:
 
-    drush ev "\Drupal\drupal_yext\Yext\Yext::instance()->deleteAllExisting()"
+    drush ev "drupal_yext()->deleteAllExisting()"
 
 This might be useful if you want to reset the importer and start from scratch.
 
@@ -131,7 +131,7 @@ Debugging
 If you know a Doctor's ID, and want to fetch it from Yext, you can go to /devel/php and run:
 
     $id = 123456;
-    $y = Drupal\drupal_yext\Yext\Yext::instance();
+    $y = drupal_yext();
     $url = $y->buildUrl('/v2/accounts/me/locations/' . $id);
     $body = (string) $y->httpGet($url)->getBody();
     dpm(json_decode($body, TRUE));
