@@ -104,7 +104,9 @@ Go to /admin/config/yext/yext, in the "Basic Node Information" section, and:
 
 If you add new mapping but already have nodes in your system, you can run:
 
-    drush ev "\Drupal\drupal_yext\Yext\Yext::instance()->resaveAllExisting()"
+    drush ev "\Drupal\drupal_yext\Yext\Yext::instance()->resaveAllExisting('print_r', 100)"
+
+In the above example, we are using print_r as a logging function, and chunk sizes of 100 when saving collections of nodes. You can tweak that number if you are getting memory errors.
 
 Be careful as this will **overwrite** all fields in your target node type with data taken from the Yext raw API output in your node's "yext raw data" field. Back up your database before trying this, please.
 
