@@ -422,10 +422,20 @@ class Yext {
    * Import nodes from Yext until two days from now.
    */
   public function importNodesToNextDatePlusTwoDays() {
-    $start = $this->nextDateToImport('Y-m-d');
-    $end = $this->nextDateToImport('Y-m-d', 2 * 24 * 60 * 60);
-    $this->watchdog('Yext: query between ' . $start . ' and ' . $end);
-    $this->importYextAll($start, $end);
+    if ($start_from_failure = $this->stateGet('drupal_yext_remember_in_case_of_failure')) {
+      $this->watchdog('Yext: starter where we left off after a failure.');
+      $start = $start_from_failure['start'];
+      $end = $start_from_failure['end'];
+      $offset = $start_from_failure['offset'];
+    }
+    else {
+      $this->watchdog('Yext: no previous failure detected; starting in the next date to import.');
+      $start = $this->nextDateToImport('Y-m-d');
+      $end = $this->nextDateToImport('Y-m-d', 2 * 24 * 60 * 60);
+      $offset = 0;
+    }
+    $this->watchdog('Yext: query between ' . $start . ' and ' . $end . ' at offset ' . $offset);
+    $this->importYextAll($start, $end, $offset);
   }
 
   /**
@@ -494,6 +504,7 @@ class Yext {
       $this->importIncrementCutoffDateButNotTooMuch();
       $this->stateSet('drupal_yext_last_check', $this->date('U'));
       $this->watchdog('Yext: --- finished import session: success ---');
+      $this->stateSet('drupal_yext_remember_in_case_of_failure', NULL);
     }
     catch (\Throwable $t) {
       $this->watchdogThrowable($t);
@@ -539,6 +550,14 @@ class Yext {
     $this->watchdog('Yext: Response count is ' . $response_count);
     $this->watchdog('Yext: Response count less offset is ' . $response_count_less_offset);
     $this->watchdog('Yext: Location count on this page is ' . $response_locations_count);
+
+    // This call might result in an out-of-memory error for large datasets.
+    // Remember where were were first.
+    $this->stateSet('drupal_yext_remember_in_case_of_failure', [
+      'start' => $start,
+      'end' => $end,
+      'offset' => $offset,
+    ]);
     $this->importFromArray($response_locations);
     if ($response_count_less_offset > $response_locations_count) {
       $new_offset = $offset + $response_locations_count;
