@@ -136,10 +136,11 @@ trait CommonUtilities {
   }
 
   /**
-   * Mockable wrapper around drupal_set_message().
+   * Mockable wrapper around  \Drupal::messenger()::addMessage().
    */
   protected function drupalSetMessage($message = NULL, $type = 'status', $repeat = FALSE) {
-    return drupal_set_message($message, $type, $repeat);
+    $messenger = \Drupal::messenger();
+    return $messenger->addMessage($message, $type == 'error' ? $messenger::TYPE_ERROR : $messenger::TYPE_STATUS, $repeat);
   }
 
   /**
@@ -228,9 +229,7 @@ trait CommonUtilities {
   public function nodeTypeLoad(string $type) : NodeTypeInterface {
     $return = NodeType::load($type);
     if (!$return) {
-      throw new \Exception($this->t('Could not load node type @t.', [
-        '@t' => $type,
-      ]));
+      throw new \Exception('Could not load node type ' . $type);
     }
     return $return;
   }

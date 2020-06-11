@@ -3,7 +3,7 @@ Drupal Yext
 
 [![CircleCI](https://circleci.com/gh/dcycle/drupal_yext.svg?style=svg)](https://circleci.com/gh/dcycle/drupal_yext)
 
-A Drupal 8 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
+A Drupal 8 and 9 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
 
 Usage
 -----
@@ -123,12 +123,18 @@ The code is available on [GitHub](https://github.com/dcycle/drupal_yext) and [Dr
 
 Automated testing is on [CircleCI](https://circleci.com/gh/dcycle/drupal_yext).
 
-To install a local version for development or evaluation, install Docker and run `./scripts/deploy.sh`.
+To install a local version for development or evaluation, install Docker and run, for Drupal 9:
+
+    ./scripts/deploy.sh
+
+For Drupal 8, run:
+
+    ./scripts/deploy.sh 8
 
 Debugging
 -----
 
-If you know a Doctor's ID, and want to fetch it from Yext, you can go to /devel/php and run:
+If you know a Doctor's ID, and want to fetch it from Yext, you can run `drush php` and then type:
 
     $id = 123456;
     $y = drupal_yext();
@@ -144,3 +150,8 @@ Getting an individual Yext record
 Yext locations have unique IDs which look like "0013800002eNtybAAC". To obtain the record from yext you can call:
 
     drupal_yext()->getRecordByUniqueId('0013800002eNtybAAC');
+
+Drupal 9
+-----
+
+This module is Drupal 9 compatible.

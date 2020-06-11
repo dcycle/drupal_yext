@@ -2,4 +2,5 @@ name: Drupal Yext
 type: module
 description: 'Import information from Drupal to Yext.'
 core: '8.x'
+core_version_requirement: ^8 || ^9
 php: 7
