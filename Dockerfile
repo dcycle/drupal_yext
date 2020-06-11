@@ -5,7 +5,7 @@ FROM dcycle/drupal:9
 RUN echo 'opcache.enable=0' >> /usr/local/etc/php/php.ini
 
 # Download contrib modules
-RUN export COMPOSER_MEMORY_LIMIT=-1 && composer require drupal/devel \
+RUN export COMPOSER_MEMORY_LIMIT=-1 && composer require \
   drupal/geofield_map \
   drupal/geofield
 
