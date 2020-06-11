@@ -1,4 +1,4 @@
-FROM dcycle/drupal:8drush
+FROM dcycle/drupal:9
 
 # Make sure opcache is disabled during development so that our changes
 # to PHP are reflected immediately.
