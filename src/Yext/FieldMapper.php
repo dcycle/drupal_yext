@@ -58,7 +58,7 @@ class FieldMapper {
    * The bio field name.
    *
    * @return string
-   *   Bio field name.
+   *   Bio field name, can be empty.
    */
   public function bio() : string {
     return $this->configGet('field_mapping_bio', '');
@@ -101,7 +101,7 @@ class FieldMapper {
       $this->nodeTypeLoad($type);
       $field_definitions = $this->fieldDefinitions('node', $type);
       foreach ($this->allFields() as $fieldinfo) {
-        if (!in_array($fieldinfo['name'], array_keys($field_definitions))) {
+        if (!empty($fieldinfo['name']) && !in_array($fieldinfo['name'], array_keys($field_definitions))) {
           $return[] = [
             'text' => $this->t('The @t field @f does not exist for the node type @n; please create it.', [
               '@t' => $fieldinfo['type'],
@@ -168,7 +168,7 @@ class FieldMapper {
    * Set the bio field name.
    *
    * @param string $value
-   *   Bio field name.
+   *   Bio field name, can be empty.
    */
   public function setBio(string $value) {
     $this->configSet('field_mapping_bio', $value);
