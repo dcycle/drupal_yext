@@ -75,7 +75,13 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    * {@inheritdoc}
    */
   public function setBio(string $bio) {
-    $this->drupal_entity->{$this->fieldmap()->bio()} = [
+    $bio_field = $this->fieldmap()->bio();
+
+    if (!$bio_field) {
+      return;
+    }
+
+    $this->drupal_entity->$bio_field = [
       'value' => $bio,
       'format' => 'basic_html',
     ];
