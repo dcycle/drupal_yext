@@ -18,3 +18,7 @@ namespace Drupal\Core\Form {
 namespace Drupal\Component\Plugin {
   class PluginBase {}
 }
+
+namespace Drupal\Core\Entity {
+  interface EntityInterface {}
+}

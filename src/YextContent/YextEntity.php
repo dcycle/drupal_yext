@@ -38,7 +38,7 @@ class YextEntity {
    */
   public function drupalEntity() {
     if (empty($this->drupal_entity)) {
-      throw new \Exception('Please generate or set an entity before calling drupalEntity().');
+      throw new \Exception('Please generate or set an entity using ::setEntity() before calling drupalEntity().');
     }
     return $this->drupal_entity;
   }
