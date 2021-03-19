@@ -178,6 +178,10 @@ class Yext {
    * @throws Exception
    */
   public function buildUrl(string $path, string $key = '', array $filters = [], int $offset = 0, string $base = '') : string {
+    if ($offset >= 10000) {
+      throw new \Exception('Due to a limitation with the version of the Yext API we are using, if the offset is 10000 or greater, it will cause a failure. Please avoid making such calls.');
+    }
+
     $key2 = $key ?: $this->apiKey();
     $base2 = $base ?: $this->base();
     $path2 = str_replace('/me/', '/' . $this->accountNumber() . '/', $path);
@@ -909,7 +913,13 @@ class Yext {
     $start = $this->nextDateToImport('Y-m-d', 3 * 24 * 60 * 60);
     $end = $this->date('Y-m-d', $this->date('U') + 24 * 60 * 60);
     $this->watchdog('Yext: query between ' . $start . ' and ' . $end);
-    $result = $this->queryYext($start, $end);
+    try {
+      $result = $this->queryYext($start, $end);
+    }
+    catch (\Exception $e) {
+      $this->watchdog('Yext: ' . $e->getMessage());
+      $result = [];
+    }
     if (!empty($result['response']['count'])) {
       $count = $result['response']['count'];
       $this->watchdog('Yext: updating remaining to ' . $count . '.');
