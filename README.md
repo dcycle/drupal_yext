@@ -116,6 +116,13 @@ If you want to delete all existing nodes of the target type, obviously back up y
 
 This might be useful if you want to reset the importer and start from scratch.
 
+Troubleshooting
+-----
+
+In some cases the module can become stuck and stop updating because it's repeatly getting a failure from Yext. If such is the case you can run:
+
+    drush sdel drupal_yext_remember_in_case_of_failure
+
 Development
 -----
 
