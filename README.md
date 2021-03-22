@@ -5,6 +5,17 @@ Drupal Yext
 
 A Drupal 8 and 9 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
 
+Limitations
+-----
+
+Because of a limitation in the version of the Yext API we are using, we will silently avoid making any requests with an offset above 9999. Yext has told me to do the following:
+
+> The issue is that for Live API, the offset cannot be higher than 9,950 (see here in our documentation: https://www.screencast.com/t/gIKfp1jf).
+>
+> Since you are using v2 of our API- I would suggest making a GET call to the Entities: List endpoint (as opposed to Locations: List) in order to use the pageToken​ parameter more info here). Here is the full link to the Documentation for your reference: https://developer.yext.com/docs/live-api/#operation/LiveKnowledgeApiServer.listEntities
+
+This has not yet implemented in this module, so we are stuck with a maximum of 9999 items per call.
+
 Usage
 -----
 
@@ -115,6 +126,13 @@ If you want to delete all existing nodes of the target type, obviously back up y
     drush ev "drupal_yext()->deleteAllExisting()"
 
 This might be useful if you want to reset the importer and start from scratch.
+
+Troubleshooting
+-----
+
+In some cases the module can become stuck and stop updating because it's repeatly getting a failure from Yext. If such is the case you can run:
+
+    drush sdel drupal_yext_remember_in_case_of_failure
 
 Development
 -----

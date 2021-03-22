@@ -25,6 +25,11 @@ class Yext {
   use CommonUtilities;
 
   /**
+   * Calls will break Yext if the offset is greater than this.
+   */
+  const MAX_OFFSET = 9999;
+
+  /**
    * Yext account number getter/setter.
    *
    * @param string $acct
@@ -178,8 +183,8 @@ class Yext {
    * @throws Exception
    */
   public function buildUrl(string $path, string $key = '', array $filters = [], int $offset = 0, string $base = '') : string {
-    if ($offset >= 10000) {
-      throw new \Exception('Due to a limitation with the version of the Yext API we are using, if the offset is 10000 or greater, it will cause a failure. Please avoid making such calls.');
+    if ($offset > self::MAX_OFFSET) {
+      throw new \Exception('Due to a limitation with the version of the Yext API we are using, if the offset is above ' . self::MAX_OFFSET . ', it will cause a failure. Please avoid making such calls.');
     }
 
     $key2 = $key ?: $this->apiKey();
@@ -439,7 +444,7 @@ class Yext {
       $offset = 0;
     }
     $this->watchdog('Yext: query between ' . $start . ' and ' . $end . ' at offset ' . $offset);
-    $this->importYextAll($start, $end, $offset);
+    $this->importYextAll($start, $end, min(self::MAX_OFFSET, $offset));
   }
 
   /**
@@ -566,7 +571,7 @@ class Yext {
     if ($response_count_less_offset > $response_locations_count) {
       $new_offset = $offset + $response_locations_count;
       $this->watchdog('Yext: incrementing offset to ' . $new_offset . ' because response count less offset > response location count');
-      if ($new_offset > $offset) {
+      if ($new_offset > $offset && $new_offset <= self::MAX_OFFSET) {
         $this->importYextAll($start, $end, $new_offset);
       }
     }
