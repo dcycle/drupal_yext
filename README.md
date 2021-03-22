@@ -5,6 +5,11 @@ Drupal Yext
 
 A Drupal 8 and 9 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
 
+Limitations
+-----
+
+Because of a limitation in the version of the Yext API we are using, we will silently avoid making any requests with an offset above 9999.
+
 Usage
 -----
 
