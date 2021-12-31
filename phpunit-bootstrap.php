@@ -20,5 +20,9 @@ namespace Drupal\Component\Plugin {
 }
 
 namespace Drupal\Core\Entity {
-  interface EntityInterface {}
+  interface FieldableEntityInterface {}
+}
+
+namespace Drupal\Core\StringTranslation {
+  trait StringTranslationTrait {}
 }

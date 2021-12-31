@@ -2,7 +2,8 @@
 
 namespace Drupal\drupal_yext\YextContent;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\drupal_yext\traits\CommonUtilities;
 
 /**
@@ -14,6 +15,21 @@ use Drupal\drupal_yext\traits\CommonUtilities;
 class YextEntity {
 
   use CommonUtilities;
+  use StringTranslationTrait;
+
+  /**
+   * The Drupal entity.
+   *
+   * @var \Drupal\Core\Entity\FieldableEntityInterface|null
+   */
+  protected $drupalEntity;
+
+  /**
+   * Constructor.
+   */
+  public function __construct() {
+    $this->drupalEntity = NULL;
+  }
 
   /**
    * The domain-specific alias, for example /about-us, or an empty string.
@@ -24,23 +40,19 @@ class YextEntity {
    *   alias for an entity, as many hospitals can use, for example,
    *   /about-us, which is then stored internally as
    *   /domain-specific/<hospital-nid>/about-us. See ./README.md for details.
-   *
-   * @throws Exception
    */
   public function domainAlias() : string {
     return '';
   }
 
   /**
-   * Getter for $this->drupal_entity.
-   *
-   * @throws \Exception
+   * Getter for $this->drupalEntity.
    */
   public function drupalEntity() {
-    if (empty($this->drupal_entity)) {
+    if ($this->drupalEntity === NULL) {
       throw new \Exception('Please generate or set an entity using ::setEntity() before calling drupalEntity().');
     }
-    return $this->drupal_entity;
+    return $this->drupalEntity;
   }
 
   /**
@@ -68,7 +80,7 @@ class YextEntity {
         $candidates = explode(',', $comma_separated);
         foreach ($candidates as $candidate) {
           $trimmed_candidate = trim($candidate);
-          if (\Drupal::service('email.validator')->isValid($trimmed_candidate)) {
+          if ($this->drupalService('email.validator')->isValid($trimmed_candidate)) {
             $mails[] = $trimmed_candidate;
           }
         }
@@ -86,8 +98,6 @@ class YextEntity {
    *
    * @return mixed
    *   Value of the field or an empty string.
-   *
-   * @throws Exception
    */
   public function fieldValue(string $field_name) {
     $field = $this->drupalEntity()->get($field_name);
@@ -108,11 +118,11 @@ class YextEntity {
   /**
    * Set the entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $drupal_entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $drupal_entity
    *   A Drupal entity.
    */
-  public function setEntity(EntityInterface $drupal_entity) {
-    $this->drupal_entity = $drupal_entity;
+  public function setEntity(FieldableEntityInterface $drupal_entity) {
+    $this->drupalEntity = $drupal_entity;
   }
 
   /**
@@ -122,11 +132,9 @@ class YextEntity {
    *   The field name.
    * @param string $field_value
    *   The string value to set.
-   *
-   * @throws Exception
    */
   public function setFieldValue(string $field_name, string $field_value) {
-    $this->drupal_entity->set($field_name, $field_value);
+    $this->drupalEntity->set($field_name, $field_value);
   }
 
   /**
@@ -134,20 +142,16 @@ class YextEntity {
    *
    * @return int
    *   The entity id.
-   *
-   * @throws Exception
    */
   public function id() : int {
-    return $this->drupal_entity->id();
+    return $this->drupalEntity->id();
   }
 
   /**
    * Saves this entity.
-   *
-   * @throws Exception
    */
   public function save() {
-    return $this->drupal_entity->save();
+    return $this->drupalEntity->save();
   }
 
   /**
@@ -158,8 +162,6 @@ class YextEntity {
    *
    * @return bool
    *   A value.
-   *
-   * @throws Exception
    */
   public function singleBoolValue(string $field) : bool {
     $value = $this->drupalEntity()->get($field)->getValue();
@@ -191,8 +193,6 @@ class YextEntity {
    *
    * @return array
    *   Associative array with "spokes", itself an array, and "error", a string.
-   *
-   * @throws Exception
    */
   public function spoke() : array {
     return [
@@ -210,8 +210,6 @@ class YextEntity {
    *   hospitals can use, for example, /about-us, which is then stored
    *   internally as /domain-specific/<hospital-nid>/about-us. See ./README.md
    *   for details.
-   *
-   * @throws Exception
    */
   public function systemAlias() {
     return '';

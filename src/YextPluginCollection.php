@@ -32,8 +32,6 @@ class YextPluginCollection implements YextPluginInterface {
    *   get an unhelpful message as described in
    *   https://drupal.stackexchange.com/questions/252930. Therefore we simply
    *   use an anonymous class.
-   *
-   * @throws \Exception
    */
   public function pluginManager() {
     // PHPStan complains that dependency injection is better here than using
@@ -43,7 +41,7 @@ class YextPluginCollection implements YextPluginInterface {
     // and is of little value to us because or manner of mocking this in
     // tests is to mock the entire ::pluginManager() method, so our code
     // ends up testable even if we don't have dependency injection.
-    // @phpstan:ignoreError
+    // @phpstan-ignore-next-line
     return \Drupal::service('plugin.manager.drupal_yext');
   }
 
@@ -56,8 +54,6 @@ class YextPluginCollection implements YextPluginInterface {
    *
    * @return array
    *   Array of plugin objects.
-   *
-   * @throws \Exception
    */
   public function plugins(bool $reset = FALSE) : array {
     static $return = NULL;
@@ -77,8 +73,6 @@ class YextPluginCollection implements YextPluginInterface {
    *
    * @return array
    *   Array of plugin definitions.
-   *
-   * @throws \Exception
    */
   public function pluginDefinitions() : array {
     $return = $this->pluginManager()->getDefinitions();

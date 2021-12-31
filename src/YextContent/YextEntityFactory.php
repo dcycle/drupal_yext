@@ -4,7 +4,7 @@ namespace Drupal\drupal_yext\YextContent;
 
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\drupal_yext\traits\Singleton;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\node\Entity\Node;
 
 /**
@@ -20,19 +20,17 @@ class YextEntityFactory {
    *
    * If the entity does not have raw Yext data in it, ignore it.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   A Drupal entity.
    *
-   * @return \Drupal\drupal_yext\NodeMigrateDestinationInterface
+   * @return \Drupal\drupal_yext\YextContent\NodeMigrateDestinationInterface
    *   A destination for migration.
-   *
-   * @throws \Throwable
    */
-  public function destinationIfLinkedToYext(EntityInterface $entity) : NodeMigrateDestinationInterface {
+  public function destinationIfLinkedToYext(FieldableEntityInterface $entity) : NodeMigrateDestinationInterface {
     if ($entity->getEntityType()->id() != 'node') {
       return new YextIgnoreNode();
     }
-    if ($entity->getType() != $this->yextNodeType()) {
+    if (method_exists($entity, 'getType') && $entity->getType() != $this->yextNodeType()) {
       return new YextIgnoreNode();
     }
     $candidate = $this->entity($entity);
@@ -40,21 +38,22 @@ class YextEntityFactory {
     if (!$raw) {
       return new YextIgnoreNode();
     }
-    return $candidate;
+    if (is_a($candidate, YextTargetNode::class)) {
+      return $candidate;
+    }
+    return new YextIgnoreNode();
   }
 
   /**
    * Given a Drupal entity, return a Yext Entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   A Drupal entity.
    *
-   * @return \Drupal\drupal_yext\YextEntity
+   * @return \Drupal\drupal_yext\YextContent\YextEntity
    *   A Yext-specific wrapper for a Drupal entity.
-   *
-   * @throws \Exception
    */
-  public function entity(EntityInterface $entity) : YextEntity {
+  public function entity(FieldableEntityInterface $entity) : YextEntity {
     if (is_a($entity, Node::class)) {
       $class = YextTargetNode::class;
     }
@@ -76,8 +75,6 @@ class YextEntityFactory {
    *
    * @return YextEntity
    *   The generated entity.
-   *
-   * @throws Exception
    */
   public function generate(string $bundle, string $type) {
     if ($bundle == 'node') {
@@ -107,15 +104,13 @@ class YextEntityFactory {
    * @return array
    *   An associativ array keyed by field value with objects of type
    *   YextTargetNode.
-   *
-   * @throws Exception
    */
   public function preloadUniqueNodes(string $node_type, string $field_name, array $field_values) : array {
     if (empty($field_values)) {
       return [];
     }
 
-    $query = \Drupal::entityQuery('node');
+    $query = $this->drupalEntityQuery('node');
     $query->condition('type', $node_type);
     $query->condition($field_name, $field_values, 'IN');
 

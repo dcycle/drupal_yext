@@ -2,7 +2,6 @@
 #
 # Lint php files.
 #
-
 set -e
 
 echo 'Linting PHP files'
@@ -17,3 +16,5 @@ docker run --rm -v "$(pwd)"/src:/code dcycle/php-lint:2 \
   --standard=DrupalPractice /code
 docker run --rm -v "$(pwd)"/src:/code dcycle/php-lint:2 \
   --standard=Drupal /code
+
+echo "Finished linting PHP files."

@@ -3,7 +3,7 @@ Drupal Yext
 
 [![CircleCI](https://circleci.com/gh/dcycle/drupal_yext.svg?style=svg)](https://circleci.com/gh/dcycle/drupal_yext)
 
-A Drupal 8 and 9 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
+A Drupal 9 module which allows you to import data from Yext using [its API](https://developer.yext.ca/docs/live-api).
 
 Limitations
 -----
@@ -21,7 +21,7 @@ Usage
 
 ### Step 1: Install as you would any Drupal module:
 
-    drush dl drupal_yext
+    composer require drupal/drupal_yext
 
 ### Step 2: Make sure you have a node type in which to save Yext data:
 
@@ -145,10 +145,6 @@ To install a local version for development or evaluation, install Docker and run
 
     ./scripts/deploy.sh
 
-For Drupal 8, run:
-
-    ./scripts/deploy.sh 8
-
 Debugging
 -----
 
@@ -168,8 +164,3 @@ Getting an individual Yext record
 Yext locations have unique IDs which look like "0013800002eNtybAAC". To obtain the record from yext you can call:
 
     drupal_yext()->getRecordByUniqueId('0013800002eNtybAAC');
-
-Drupal 9
------
-
-This module is Drupal 9 compatible.

@@ -38,6 +38,11 @@ class YextIgnoreNode implements NodeMigrateDestinationInterface {
   /**
    * {@inheritdoc}
    */
+  public function save() {}
+
+  /**
+   * {@inheritdoc}
+   */
   public function setBio(string $bio) {}
 
   /**

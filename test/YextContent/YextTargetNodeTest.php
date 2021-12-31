@@ -2,7 +2,7 @@
 
 namespace Drupal\drupal_yext\Tests;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\drupal_yext\YextContent\YextTargetNode;
 use PHPUnit\Framework\TestCase;
 use Drupal\drupal_yext\Yext\FieldMapper;
@@ -46,7 +46,7 @@ class YextTargetNodeTest extends TestCase {
         }
       });
 
-    $object->setEntity(new class implements EntityInterface {});
+    $object->setEntity(new class implements FieldableEntityInterface {});
 
     $object->setBio('some bio');
 
