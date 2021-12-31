@@ -64,8 +64,6 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    *
    * @return string
    *   The node type.
-   *
-   * @throws Exception
    */
   public function nodeType() : string {
     return $this->drupalEntity()->getType();
@@ -81,7 +79,7 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
       return;
     }
 
-    $this->drupal_entity->$bio_field = [
+    $this->drupalEntity->$bio_field = [
       'value' => $bio,
       'format' => 'basic_html',
     ];
@@ -94,7 +92,7 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
     if ($geofield = $this->fieldmap()->geo()) {
       if (!empty($geo['lat'])) {
         $value = 'POINT (' . $geo['lon'] . ' ' . $geo['lat'] . ')';
-        $this->drupal_entity->set($geofield, $value);
+        $this->drupalEntity->set($geofield, $value);
       }
     }
   }
@@ -106,7 +104,7 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
     // In Drupal, the second argument to set() can be either an array (as is
     // the case here), or a single item which is interpreted the same way as
     // as 1-count array.
-    $this->drupal_entity->set($id, $values);
+    $this->drupalEntity->set($id, $values);
   }
 
   /**
@@ -114,7 +112,7 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    */
   public function setHeadshot(string $url) {
     if ($url) {
-      $this->imageFromWebToField($url, $this->drupal_entity, $this->fieldmap()->headshot());
+      $this->imageFromWebToField($url, $this->drupalEntity, $this->fieldmap()->headshot());
     }
   }
 
@@ -126,7 +124,9 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
       $this->drupalSetMessage($this->t('The name in the raw data is empty, not updating it as it would cause an error.'));
       return;
     }
-    $this->drupal_entity->setTitle($name);
+    if (method_exists($this->drupalEntity, 'setTitle')) {
+      $this->drupalEntity->setTitle($name);
+    }
   }
 
   /**
@@ -134,7 +134,7 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    */
   public function setYextId(string $id) {
     if ($id) {
-      $this->drupal_entity->set($this->yext()->uniqueYextIdFieldName(), $id);
+      $this->drupalEntity->set($this->yext()->uniqueYextIdFieldName(), $id);
     }
     else {
       $this->drupalSetMessage($this->t('Refusing to update Yext ID field to empty'));
@@ -145,14 +145,14 @@ class YextTargetNode extends YextEntity implements NodeMigrateDestinationInterfa
    * {@inheritdoc}
    */
   public function setYextLastUpdate(int $timestamp) {
-    $this->drupal_entity->set($this->yext()->uniqueYextLastUpdatedFieldName(), $timestamp);
+    $this->drupalEntity->set($this->yext()->uniqueYextLastUpdatedFieldName(), $timestamp);
   }
 
   /**
    * {@inheritdoc}
    */
   public function setYextRawData(string $data) {
-    $this->drupal_entity->set($this->fieldmap()->raw(), $data);
+    $this->drupalEntity->set($this->fieldmap()->raw(), $data);
   }
 
   /**

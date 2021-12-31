@@ -2,6 +2,7 @@
 
 namespace Drupal\drupal_yext\Yext;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 
@@ -10,16 +11,15 @@ use Drupal\drupal_yext\traits\CommonUtilities;
  */
 class FieldMapper {
 
-  use Singleton;
   use CommonUtilities;
+  use Singleton;
+  use StringTranslationTrait;
 
   /**
    * Get info about all fields (custom or standard) which can be mapped.
    *
    * @return array
    *   Array of fields, each being an array with keys "name" and "type".
-   *
-   * @throws Exception
    */
   public function allFields() : array {
     $return = [];
@@ -74,8 +74,6 @@ class FieldMapper {
    *     1 => the Drupal field if possible, for example NULL, an empty string,
    *          or field_drupal_field.
    *     2 => a field description if it exists.
-   *
-   * @throws Exception
    */
   public function customFieldInfo() : array {
     $return = [];
@@ -127,8 +125,6 @@ class FieldMapper {
    *   A CSV-type value such as:
    *     "1234","field_drupal_field","description"
    *     "2345",,"this is not mapped to drupal but exists in yext"
-   *
-   * @throws \Throwable
    */
   public function fieldMapping() : string {
     return $this->configGet('field_mapping', '');
@@ -191,8 +187,6 @@ class FieldMapper {
    *   A CSV-type value such as:
    *     "1234","field_drupal_field","description"
    *     "2345",,"this is not mapped to drupal but exists in yext".
-   *
-   * @throws \Throwable
    */
   public function setFieldMapping(string $mapping) {
     $this->configSet('field_mapping', $mapping);

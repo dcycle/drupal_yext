@@ -2,9 +2,7 @@
 
 namespace Drupal\drupal_yext;
 
-// @codingStandardsIgnoreStart
 use Drupal\Component\Plugin\PluginBase;
-// @codingStandardsIgnoreEnd
 use Drupal\drupal_yext\YextContent\YextSourceRecord;
 
 /**

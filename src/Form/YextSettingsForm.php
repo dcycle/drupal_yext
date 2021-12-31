@@ -58,11 +58,11 @@ class YextSettingsForm extends FormBase {
     $last_check = $this->yext()->lastCheck('Y-m-d H:i:s');
     $remaining = $this->yext()->remaining();
 
-    $ajax_response->addCommand(new HtmlCommand('#yext-imported', $imported));
-    $ajax_response->addCommand(new HtmlCommand('#yext-failed', $failed));
-    $ajax_response->addCommand(new HtmlCommand('#yext-next-date', $next_date));
-    $ajax_response->addCommand(new HtmlCommand('#yext-last-check', $last_check));
-    $ajax_response->addCommand(new HtmlCommand('#yext-remaining', $remaining));
+    $ajax_response->addCommand(new HtmlCommand('#yext-imported', strval($imported)));
+    $ajax_response->addCommand(new HtmlCommand('#yext-failed', strval($failed)));
+    $ajax_response->addCommand(new HtmlCommand('#yext-next-date', strval($next_date)));
+    $ajax_response->addCommand(new HtmlCommand('#yext-last-check', strval($last_check)));
+    $ajax_response->addCommand(new HtmlCommand('#yext-remaining', strval($remaining)));
 
     return $ajax_response;
   }

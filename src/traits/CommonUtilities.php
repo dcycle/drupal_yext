@@ -4,14 +4,13 @@ namespace Drupal\drupal_yext\traits;
 
 use Drupal\drupal_yext\Yext\FieldMapper;
 use Drupal\drupal_yext\Yext\Yext;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Utility\Error;
-// @codingStandardsIgnoreStart
 use Drupal\node\NodeTypeInterface;
-// @codingStandardsIgnoreEnd
 use Drupal\node\Entity\NodeType;
 
 /**
@@ -46,8 +45,6 @@ trait CommonUtilities {
    *
    * @return mixed
    *   Data of type $type.
-   *
-   * @throws \Throwable
    */
   public function assocArrayElem(array $array, array $types, array $keys, $default, bool $required = FALSE, string $required_message = '', array $options = []) {
     if (!count($types)) {
@@ -111,7 +108,7 @@ trait CommonUtilities {
    * Mockable wrapper around \Drupal::config()->get().
    */
   public function configGet($variable, $default = NULL) {
-    $return = \Drupal::config('drupal_yext.general.settings')->get($variable, $default);
+    $return = \Drupal::config('drupal_yext.general.settings')->get($variable);
     return ($return === NULL) ? $default : $return;
   }
 
@@ -121,6 +118,29 @@ trait CommonUtilities {
   public function configSet($variable, $value) {
     $config = \Drupal::service('config.factory')->getEditable('drupal_yext.general.settings');
     $config->set($variable, $value)->save();
+  }
+
+  /**
+   * Mockable wrapper around \Drupal::entityQuery(...).
+   *
+   * @param string $type
+   *   A type such as node.
+   *
+   * @return \Drupal\Core\Entity\Query\QueryInterface
+   *   The query object that can query the given entity type.
+   */
+  public function drupalEntityQuery(string $type) {
+    return \Drupal::entityQuery($type);
+  }
+
+  /**
+   * Mockable wrapper around \Drupal::moduleHandler().
+   *
+   * @return \Drupal\Core\Extension\ModuleHandlerInterface
+   *   The module handler.
+   */
+  public function drupalModuleHandler() {
+    return \Drupal::moduleHandler();
   }
 
   /**
@@ -179,14 +199,12 @@ trait CommonUtilities {
    *
    * @param string $url
    *   An URL which contains an image.
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   A Drupal entity.
    * @param string $field_name
    *   An image field on the entity.
-   *
-   * @throws Exception
    */
-  public function imageFromWebToField(string $url, EntityInterface $entity, string $field_name) {
+  public function imageFromWebToField(string $url, FieldableEntityInterface $entity, string $field_name) {
     $response = $this->httpGet($url);
     $response_code = $response->getStatusCode();
     if ($response_code != 200) {
@@ -204,9 +222,22 @@ trait CommonUtilities {
       throw new \Exception('Possible incomplete download: ' . $content_length . ' bytes downloaded, ' . $header_length . ' expected.');
     }
 
-    $file = file_save_data($content, 'public://' . $entity->uuid() . '.' . str_replace('image/', '', $header_type), FILE_EXISTS_REPLACE);
+    $file = $this->drupalService('file.repository')->writeData($content, 'public://' . $entity->uuid() . '.' . str_replace('image/', '', $header_type), FileSystemInterface::EXISTS_REPLACE);
 
     $entity->set($field_name, $file);
+  }
+
+  /**
+   * Mockable wrapper around \Drupal::service(...).
+   *
+   * @param string $name
+   *   A service name like file.repository.
+   *
+   * @return mixed
+   *   The Drupal service, if possible.
+   */
+  public function drupalService(string $name) {
+    return \Drupal::service($name);
   }
 
   /**
@@ -216,8 +247,6 @@ trait CommonUtilities {
    *
    * @return \Drupal\Core\Link
    *   A displayable link.
-   *
-   * @throws Exception
    */
   public function link(string $text, string $path) : Link {
     return Link::fromTextAndUrl($text, Url::fromUri($path));
@@ -249,23 +278,10 @@ trait CommonUtilities {
   }
 
   /**
-   * Mockable wrapper around t().
-   *
-   * See that function for details.
-   */
-  public function t($string, array $args = [], array $options = []) {
-    // @codingStandardsIgnoreStart
-    return t($string, $args, $options);
-    // @codingStandardsIgnoreEnd
-  }
-
-  /**
    * Log a string to the watchdog.
    *
    * @param string $string
    *   String to be logged.
-   *
-   * @throws Exception
    */
   public function watchdog(string $string) {
     \Drupal::logger('drupal_yext')->notice($string);
@@ -276,8 +292,6 @@ trait CommonUtilities {
    *
    * @param string $string
    *   String to be logged.
-   *
-   * @throws Exception
    */
   public function watchdogError(string $string) {
     \Drupal::logger('drupal_yext')->error($string);
@@ -322,7 +336,7 @@ trait CommonUtilities {
   /**
    * Get the Yext app singleton.
    *
-   * @return \Drupal\drupal_yext\Yext
+   * @return \Drupal\drupal_yext\Yext\Yext
    *   The Yext singleton.
    */
   public function yext() {
@@ -334,8 +348,6 @@ trait CommonUtilities {
    *
    * @return string
    *   A node type such as 'article'.
-   *
-   * @throws \Throwable
    */
   public function yextNodeType() : string {
     return $this->configGet('target_node_type', 'article');

@@ -2,7 +2,7 @@
 
 namespace Drupal\drupal_yext_sync_deleted;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\drupal_yext\traits\Singleton;
 use Drupal\drupal_yext\traits\CommonUtilities;
 use Drupal\node\Entity\Node;
@@ -31,7 +31,7 @@ class YextSyncDeleted {
   public function hookCron() {
     $type = $this->yextNodeType();
 
-    $drupal_nids = \Drupal::entityQuery('node')
+    $drupal_nids = $this->drupalEntityQuery('node')
       ->condition('type', $type)
       ->condition($this->yext()->uniqueYextIdFieldName(), NULL, 'IS NOT NULL')
       ->condition($this->yext()->uniqueYextIdFieldName(), '%DELETED%', 'NOT LIKE')
@@ -49,12 +49,12 @@ class YextSyncDeleted {
   /**
    * Mark an entity as deleted and save it.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   An entity.
    * @param string $old_value
    *   The Yext entity id.
    */
-  public function markAsDeleted(EntityInterface $entity, string $old_value) {
+  public function markAsDeleted(FieldableEntityInterface $entity, string $old_value) {
     $new_value = 'DELETED FROM YEXT ' . $old_value;
 
     $raw = $entity->get(drupal_yext()->fieldmap()->raw())->getValue();
@@ -67,7 +67,7 @@ class YextSyncDeleted {
     }
 
     if (is_a($entity, Node::class)) {
-      $entity->setPublished(FALSE);
+      $entity->setUnpublished();
     }
 
     $entity->save();
@@ -131,10 +131,10 @@ class YextSyncDeleted {
   /**
    * Synchronize a given node if it's been deleted in Yext.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   An entity to sync.
    */
-  public function syncDeleted(EntityInterface $entity) {
+  public function syncDeleted(FieldableEntityInterface $entity) {
     $field_value = $entity->get($this->yext()->uniqueYextIdFieldName())->getValue();
     if (isset($field_value[0]['value'])) {
       if (!$this->yextEntityExists($field_value[0]['value'])) {

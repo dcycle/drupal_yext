@@ -14,11 +14,25 @@ class NodeMigrationOnSave {
   use CommonUtilities;
 
   /**
+   * The source.
+   *
+   * @var \Drupal\drupal_yext\YextContent\NodeMigrateSourceInterface
+   */
+  protected $from;
+
+  /**
+   * The destination.
+   *
+   * @var \Drupal\drupal_yext\YextContent\NodeMigrateDestinationInterface
+   */
+  protected $to;
+
+  /**
    * Constructor.
    *
-   * @param NodeMigrateSourceInterface $from
+   * @param \Drupal\drupal_yext\YextContent\NodeMigrateSourceInterface $from
    *   A source node.
-   * @param NodeMigrateDestinationInterface $to
+   * @param \Drupal\drupal_yext\YextContent\NodeMigrateDestinationInterface $to
    *   A destination node.
    */
   public function __construct(NodeMigrateSourceInterface $from, NodeMigrateDestinationInterface $to) {

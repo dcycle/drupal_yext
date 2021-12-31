@@ -30,7 +30,7 @@ class YextFindByTitle {
    *   The target node if possible.
    */
   public function candidate(string $yext_title) {
-    $query = \Drupal::entityQuery('node');
+    $query = $this->drupalEntityQuery('node');
     $query->condition('type', $this->yextNodeType());
     $query->condition('title', $yext_title);
     $query->condition($this->yext()->uniqueYextIdFieldName(), NULL, 'IS NULL');

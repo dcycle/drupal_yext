@@ -12,10 +12,17 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
   use CommonUtilities;
 
   /**
+   * An associative array structure from Yext.
+   *
+   * @var array
+   */
+  protected $structure;
+
+  /**
    * Constructor.
    *
    * @param array $structure
-   *   A associative array structure from Yext.
+   *   An associative array structure from Yext.
    */
   public function __construct(array $structure) {
     $this->structure = $structure;
@@ -90,7 +97,7 @@ class YextSourceRecord implements NodeMigrateSourceInterface {
    * {@inheritdoc}
    */
   public function getYextRawData() : string {
-    return json_encode($this->structure, TRUE);
+    return json_encode($this->structure);
   }
 
   /**

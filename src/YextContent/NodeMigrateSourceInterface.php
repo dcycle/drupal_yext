@@ -12,8 +12,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return string
    *   A plain text string representing a bio, or empty string.
-   *
-   * @throws \Throwable
    */
   public function getBio() : string;
 
@@ -22,8 +20,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return array
    *   An array with, if possible, lat and lon keys.
-   *
-   * @throws \Throwable
    */
   public function getGeo() : array;
 
@@ -32,8 +28,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return string
    *   A URL or empty string.
-   *
-   * @throws \Throwable
    */
   public function getHeadshot() : string;
 
@@ -42,8 +36,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return string
    *   A full name, or empty string.
-   *
-   * @throws \Throwable
    */
   public function getName() : string;
 
@@ -55,8 +47,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return array
    *   An array of values.
-   *
-   * @throws \Throwable
    */
   public function getCustom(string $id) : array;
 
@@ -65,8 +55,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return string
    *   A unique Yext ID, or empty string.
-   *
-   * @throws \Throwable
    */
   public function getYextId() : string;
 
@@ -75,8 +63,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return int
    *   The last time Yext was updated or synchronized as microtime.
-   *
-   * @throws \Throwable
    */
   public function getYextLastUpdate() : int;
 
@@ -85,8 +71,6 @@ interface NodeMigrateSourceInterface {
    *
    * @return string
    *   Json string.
-   *
-   * @throws \Throwable
    */
   public function getYextRawData() : string;
 

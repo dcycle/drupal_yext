@@ -12,9 +12,3 @@ echo "Running self tests on Drupal 9"
 ./scripts/self-test-running-environment.sh
 echo "Killing Drupal 9"
 docker-compose down -v
-echo "Deploying on Drupal 8"
-./scripts/deploy.sh 8
-echo "Running self tests on Drupal 8"
-./scripts/self-test-running-environment.sh
-echo "Killing Drupal 8"
-docker-compose down -v

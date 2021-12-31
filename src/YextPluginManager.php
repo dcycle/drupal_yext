@@ -27,7 +27,7 @@ use Drupal\drupal_yext\Annotation\YextPluginAnnotation;
  */
 // See https://github.com/mglaman/phpstan-drupal/issues/113
 // @codingStandardsIgnoreStart
-// @phpstan:ignoreError
+// @phpstan-ignore-next-line
 class YextPluginManager extends DefaultPluginManager {
 // @codingStandardsIgnoreEnd
 
@@ -42,11 +42,7 @@ class YextPluginManager extends DefaultPluginManager {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler to invoke the alter hook with.
    */
-  // See https://github.com/mglaman/phpstan-drupal/issues/112
-  // @codingStandardsIgnoreStart
-  // @phpstan:ignoreError
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-  // @codingStandardsIgnoreEnd
     // We replace the $subdir parameter with our own value.
     // This tells the plugin manager to look for plugins in the
     // 'src/Plugin/YextPlugin' subdirectory of any enabled modules.

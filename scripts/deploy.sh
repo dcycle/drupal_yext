@@ -6,7 +6,8 @@
 set -e
 
 if [ "$1" == 8 ]; then
-  DRUPAL_VERSION=8
+  >&2 echo "Drupal 8 is not supported on the 2.x branch."
+  exit 1
 else
   DRUPAL_VERSION=9
 fi

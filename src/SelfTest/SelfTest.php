@@ -63,13 +63,11 @@ class SelfTest {
    * @return array
    *   An array with one item whose key is the node id, and the value is
    *   an object of class YextTargetNode.
-   *
-   * @throws \Exception
    */
   public function generateDummy(string $title) : array {
     $node = YextEntityFactory::instance()->generate('node', 'article');
-    $node->drupal_entity->setTitle($title);
-    $node->drupal_entity->save();
+    $node->drupalEntity()->setTitle($title);
+    $node->drupalEntity()->save();
     return [
       $node->id() => $node,
     ];
@@ -103,7 +101,7 @@ class SelfTest {
     $source = new YextSourceRecord($structure);
     $entity = $this->yext()->getOrCreateUniqueNode($source);
     (new NodeMigrationAtCreation($source, $entity))->migrate();
-    $this->assert($entity->drupal_entity->getTitle(), $structure['locationName'], 'Drupal entity title should be the location name when mock migrating a record.');
+    $this->assert($entity->drupalEntity()->getTitle(), $structure['locationName'], 'Drupal entity title should be the location name when mock migrating a record.');
     return $entity;
   }
 
@@ -120,10 +118,12 @@ class SelfTest {
     $error = FALSE;
     $entity = NULL;
     $entity5 = NULL;
+    $entityImport = NULL;
+    $dummy_nodes = [];
 
     try {
       $this->print('Starting self-test.');
-      $this->assert(\Drupal::moduleHandler()->moduleExists('drupal_yext_find_by_title'), TRUE, 'Please enable the drupal_yext_find_by_title module before running selftests.');
+      $this->assert($this->drupalModuleHandler()->moduleExists('drupal_yext_find_by_title'), TRUE, 'Please enable the drupal_yext_find_by_title module before running selftests.');
 
       $this->print('Confirming we can create a new node based on Yext data.');
 
@@ -137,7 +137,7 @@ class SelfTest {
       ]);
 
       $this->print('Created entity with id ' . $entity->id() . '.');
-      $this->assert($entity->drupal_entity->getTitle(), 'Hello World', 'node title is location name');
+      $this->assert($entity->drupalEntity()->getTitle(), 'Hello World', 'node title is location name');
 
       $entity2 = $this->mockMigrate([
         'id' => '12345',
@@ -147,7 +147,7 @@ class SelfTest {
 
       $this->assert($entity->id(), $entity2->id(), 'the second time we try to get or creat the entity, the existing entity is returned because the yext id is the same.');
 
-      $this->assert($entity->drupal_entity->getTitle(), 'Hello World', 'node title is NOT updated location name because timestamp of second migrated item is earlier than the first');
+      $this->assert($entity->drupalEntity()->getTitle(), 'Hello World', 'node title is NOT updated location name because timestamp of second migrated item is earlier than the first');
 
       $entity3 = $this->mockMigrate([
         'id' => '12345',
@@ -157,13 +157,12 @@ class SelfTest {
 
       $this->assert($entity3->id(), $entity2->id(), 'the third time we try to get or creat the entity, the existing entity is returned because the yext id is the same.');
 
-      $this->assert($entity3->drupal_entity->getTitle(), 'Hello World2', 'node title is updated location name because timestamp of third migrated item is later than the first');
+      $this->assert($entity3->drupalEntity()->getTitle(), 'Hello World2', 'node title is updated location name because timestamp of third migrated item is later than the first');
 
       $this->print('Creating some dummy nodes.');
 
       $random = rand();
 
-      $dummy_nodes = [];
       $dummy_nodes += $this->generateDummy($random . 'ONE OF THESE');
       $dummy_nodes += $this->generateDummy($random . 'TWO OF THESE');
       $dummy_nodes += $this->generateDummy($random . 'TWO OF THESE');
@@ -171,7 +170,7 @@ class SelfTest {
       $has_yext_id = $this->generateDummy($random . 'ONE OF THESE IS EMPTY');
       $has_yext_id = array_pop($has_yext_id);
       $has_yext_id->setYextId('whatever');
-      $has_yext_id->drupal_entity->save();
+      $has_yext_id->drupalEntity()->save();
       $dummy_nodes += [
         $has_yext_id->id() => $has_yext_id,
       ];
@@ -216,12 +215,12 @@ class SelfTest {
         'timestamp' => 1,
       ]);
 
-      $this->assert($entityImport->drupal_entity->get('field_numeric_single')->getValue(), [
+      $this->assert($entityImport->drupalEntity()->get('field_numeric_single')->getValue(), [
         [
           "value" => "hello",
         ],
       ], 'field_numeric_single import works');
-      $this->assert($entityImport->drupal_entity->get('field_numeric_multi')->getValue(), [
+      $this->assert($entityImport->drupalEntity()->get('field_numeric_multi')->getValue(), [
         [
           "value" => "hello",
         ],
@@ -229,12 +228,12 @@ class SelfTest {
           "value" => "world",
         ],
       ], 'field_numeric_multi import works');
-      $this->assert($entityImport->drupal_entity->get('field_non_numeric_single')->getValue(), [
+      $this->assert($entityImport->drupalEntity()->get('field_non_numeric_single')->getValue(), [
         [
           "value" => "hello2",
         ],
       ], 'field_non_numeric_single import works');
-      $this->assert($entityImport->drupal_entity->get('field_non_numeric_multi')->getValue(), [
+      $this->assert($entityImport->drupalEntity()->get('field_non_numeric_multi')->getValue(), [
         [
           "value" => "hello2",
         ],
@@ -258,19 +257,19 @@ class SelfTest {
     $this->print('Deleting the entities we created.');
 
     if ($entity) {
-      $entity->drupal_entity->delete();
+      $entity->drupalEntity()->delete();
     }
 
     foreach ($dummy_nodes as $node) {
-      $node->drupal_entity->delete();
+      $node->drupalEntity()->delete();
     }
 
     if ($entity5) {
-      $entity5->drupal_entity->delete();
+      $entity5->drupalEntity()->delete();
     }
 
     if ($entityImport) {
-      $entityImport->drupal_entity->delete();
+      $entityImport->drupalEntity()->delete();
     }
 
     $this->stateSet('drupal_yext_api', $live_key);

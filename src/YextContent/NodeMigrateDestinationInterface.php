@@ -12,8 +12,6 @@ interface NodeMigrateDestinationInterface {
    *
    * @return int
    *   The last time Yext was updated or synchronized as microtime.
-   *
-   * @throws \Throwable
    */
   public function getYextLastUpdate() : int;
 
@@ -34,12 +32,15 @@ interface NodeMigrateDestinationInterface {
   public function getYextRawDataArray() : array;
 
   /**
+   * Save this item.
+   */
+  public function save();
+
+  /**
    * Set a bio.
    *
    * @param string $bio
    *   A plain text string representing a bio, or empty string.
-   *
-   * @throws \Throwable
    */
   public function setBio(string $bio);
 
@@ -48,8 +49,6 @@ interface NodeMigrateDestinationInterface {
    *
    * @param array $geo
    *   An array with, if possible, lat and lon keys.
-   *
-   * @throws \Throwable
    */
   public function setGeo(array $geo);
 
@@ -58,8 +57,6 @@ interface NodeMigrateDestinationInterface {
    *
    * @param string $url
    *   A URL or empty string.
-   *
-   * @throws \Throwable
    */
   public function setHeadshot(string $url);
 
@@ -68,8 +65,6 @@ interface NodeMigrateDestinationInterface {
    *
    * @param string $name
    *   A full name, or empty string.
-   *
-   * @throws \Throwable
    */
   public function setName(string $name);
 
@@ -80,18 +75,22 @@ interface NodeMigrateDestinationInterface {
    *   A field name.
    * @param array $values
    *   Array of values.
-   *
-   * @throws \Throwable
    */
   public function setCustom(string $id, array $values);
+
+  /**
+   * Set the Yext ID.
+   *
+   * @param string $id
+   *   The Yext ID.
+   */
+  public function setYextId(string $id);
 
   /**
    * Set the last time Yext was updated or synchronized.
    *
    * @param int $timestamp
    *   The last time Yext was updated or synchronized as a unix timestamp.
-   *
-   * @throws \Throwable
    */
   public function setYextLastUpdate(int $timestamp);
 
@@ -100,8 +99,6 @@ interface NodeMigrateDestinationInterface {
    *
    * @param string $data
    *   Json string.
-   *
-   * @throws \Throwable
    */
   public function setYextRawData(string $data);
 

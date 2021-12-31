@@ -3,6 +3,8 @@
 namespace Drupal\drupal_yext\Yext;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\Node;
 use Drupal\drupal_yext\SelfTest\SelfTest;
 use Drupal\drupal_yext\traits\Singleton;
@@ -21,8 +23,9 @@ use Drupal\drupal_yext\YextPluginCollection;
  */
 class Yext {
 
-  use Singleton;
   use CommonUtilities;
+  use Singleton;
+  use StringTranslationTrait;
 
   /**
    * Calls will break Yext if the offset is greater than this.
@@ -107,8 +110,6 @@ class Yext {
    * @return array
    *   An array suitable for jsonization, to be passed as a "filter" get
    *   parameter to Yext's API.
-   *
-   * @throws \Exception
    */
   public function allFilters($date, $date2) : array {
     return array_merge([
@@ -179,8 +180,6 @@ class Yext {
    *
    * @return string
    *   A URL.
-   *
-   * @throws Exception
    */
   public function buildUrl(string $path, string $key = '', array $filters = [], int $offset = 0, string $base = '') : string {
     if ($offset > self::MAX_OFFSET) {
@@ -211,11 +210,11 @@ class Yext {
    * @return bool
    *   TRUE if types match.
    */
-  public function checkEntityType(EntityInterface $entity) : bool {
+  public function checkEntityType(FieldableEntityInterface $entity) : bool {
     if ($entity->getEntityType()->id() != 'node') {
       return FALSE;
     }
-    return $entity->getType() == $this->yextNodeType();
+    return method_exists($entity, 'getType') && $entity->getType() == $this->yextNodeType();
   }
 
   /**
@@ -270,7 +269,7 @@ class Yext {
    *   Array of Drupal nodes.
    */
   public function getAllExisting(int $start = 0, int $length = PHP_INT_MAX, int $start_at = 0) : array {
-    $nids = \Drupal::entityQuery('node')
+    $nids = $this->drupalEntityQuery('node')
       ->condition('nid', $start_at, '>=')
       ->condition('type', $this->yextNodeType())
       ->condition($this->uniqueYextIdFieldName(), NULL, '<>')
@@ -289,8 +288,6 @@ class Yext {
    *
    * @return array
    *   A unique Yext record.
-   *
-   * @throws \Exception
    */
   public function getRecordByUniqueId($id) : array {
     $url = $this->buildUrl('/v2/accounts/me/locations/' . $id);
@@ -320,8 +317,6 @@ class Yext {
    *
    * @return array
    *   The filter as an array.
-   *
-   * @throws \Exception
    */
   public function filterAsArray(string $filter) : array {
     $return = @json_decode($filter, TRUE);
@@ -384,6 +379,9 @@ class Yext {
    * Testable implementation of hook_entity_presave().
    */
   public function hookEntityPresave(EntityInterface $entity) {
+    if (!$entity instanceof FieldableEntityInterface) {
+      return;
+    }
     try {
       if ($this->checkEntityType($entity)) {
         $this->updateRaw($entity);
@@ -454,14 +452,10 @@ class Yext {
    *
    * @param array $array
    *   An array of Nodes from Yext.
-   *
-   * @throws \Exception
    */
   public function importFromArray(array $array) {
     $all_ids = [];
-    // @codingStandardsIgnoreStart
     array_walk($array, function ($item, $key) use (&$all_ids) {
-    // @codingStandardsIgnoreEnd
       if (isset($item['id'])) {
         $all_ids[$item['id']] = $item['id'];
       }
@@ -494,8 +488,6 @@ class Yext {
 
   /**
    * Import some nodes.
-   *
-   * @throws Exception
    */
   public function importSome() {
     try {
@@ -526,7 +518,7 @@ class Yext {
    */
   public function importIncrementCutoffDateButNotTooMuch() {
     $this->watchdog('Yext: incrementing cutoff date');
-    $previous = $this->nextDateToImport('U');
+    $previous = intval($this->nextDateToImport('U'));
     $candidate = $previous + 24 * 60 * 60;
     $date = min($this->date('U'), $candidate);
     $this->watchdog('Yext: cutoff date incremented to ' . $this->date('Y-m-d H:i:s', $date));
@@ -545,8 +537,6 @@ class Yext {
    *   YYYY-MM-DD.
    * @param int $offset
    *   An offset. Using during recursion.
-   *
-   * @throws Exception
    */
   public function importYextAll(string $start, string $end, int $offset = 0) {
     $this->watchdog('Yext: importing with offset ' . $offset);
@@ -605,8 +595,6 @@ class Yext {
    *
    * @return string
    *   The formatted last date checked.
-   *
-   * @throws Exception
    */
   public function lastCheck($format) {
     return date($format, $this->stateGet('drupal_yext_last_check', 0));
@@ -622,8 +610,6 @@ class Yext {
    *
    * @return string
    *   The formatted next date to import.
-   *
-   * @throws Exception
    */
   public function nextDateToImport($format, int $add = 0) {
     return date($format, $this->stateGet('drupal_yext_next_import', strtotime('2017-12-10')) + $add);
@@ -634,8 +620,6 @@ class Yext {
    *
    * @return \Drupal\drupal_yext\YextPluginCollection
    *   All plugins.
-   *
-   * @throws \Exception
    */
   public function plugins() : YextPluginCollection {
     return YextPluginCollection::instance();
@@ -653,8 +637,6 @@ class Yext {
    *
    * @return array
    *   A response from the Yext API.
-   *
-   * @throws Exception
    */
   public function queryYext($date, $date2, $offset = 0) : array {
     $url = $this->buildUrl('/v2/accounts/me/locations', '', $this->allFilters($date, $date2), $offset);
@@ -668,13 +650,13 @@ class Yext {
    * If the config variable "update_raw_on_save" is set, or if the raw field is
    * empty for the entity, this will return TRUE.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   A Drupal entity.
    *
    * @return bool
    *   TRUE if the raw field should be updated for this entity.
    */
-  public function rawUpdatable(EntityInterface $entity) {
+  public function rawUpdatable(FieldableEntityInterface $entity) {
     if ($this->configGet('update_raw_on_save', FALSE)) {
       return TRUE;
     }
@@ -824,8 +806,6 @@ class Yext {
    *
    * @return string
    *   A field name such as 'field_yext_unique_id.
-   *
-   * @throws \Throwable
    */
   public function uniqueYextIdFieldName() : string {
     return $this->configGet('target_unique_id_field', 'field_yext_unique_id');
@@ -836,8 +816,6 @@ class Yext {
    *
    * @return string
    *   A field name such as 'field_yext_last_updated.
-   *
-   * @throws \Throwable
    */
   public function uniqueYextLastUpdatedFieldName() : string {
     return $this->configGet('target_unique_last_updated_field', 'field_yext_last_updated');
@@ -846,10 +824,8 @@ class Yext {
   /**
    * Given an entity, update it based on a response from the server.
    *
-   * @param \Drupal\drupal_yext\YextEntity $candidate
+   * @param \Drupal\drupal_yext\YextContent\YextEntity $candidate
    *   An entity to be updated.
-   *
-   * @throws \Exception
    */
   public function updateEntityFromId(YextEntity $candidate) {
     $id = $candidate->fieldValue($this->uniqueYextIdFieldName());
@@ -866,7 +842,9 @@ class Yext {
       // an error, unpublish the node.
       $data = $this->getRecordByUniqueId($id);
       if (!empty($data['response'])) {
-        $candidate->setYextRawData(json_encode($data['response'], TRUE));
+        if (is_a($candidate, YextTargetNode::class)) {
+          $candidate->setYextRawData(json_encode($data['response']));
+        }
       }
       else {
         throw new \Exception('Got data from Yext but it does not contain a "response" key.');
@@ -882,7 +860,9 @@ class Yext {
       if ($this->configGet('unpublish_node_if_id_invalid', FALSE)) {
         $message = $this->t('Unpublishing node with nid @i (Yext id @yext_id) because we got the error @t from Yext.', $t_args);
         $this->drupalSetMessage($message);
-        $candidate->setYextRawData(json_encode($message, TRUE));
+        if (is_a($candidate, YextTargetNode::class)) {
+          $candidate->setYextRawData(json_encode($message));
+        }
         $candidate->unpublish();
       }
       else {
@@ -894,12 +874,10 @@ class Yext {
   /**
    * Update the raw data field but only if this is required.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   A Drupal entity.
-   *
-   * @throws \Exception
    */
-  public function updateRaw(EntityInterface $entity) {
+  public function updateRaw(FieldableEntityInterface $entity) {
     if ($this->rawUpdatable($entity)) {
       $candidate = YextEntityFactory::instance()->entity($entity);
       $this->drupalSetMessage($this->t('Will try to update data from Yext for node with nid @i', ['@i' => $entity->id()]));
@@ -916,7 +894,7 @@ class Yext {
    */
   public function updateRemaining() {
     $start = $this->nextDateToImport('Y-m-d', 3 * 24 * 60 * 60);
-    $end = $this->date('Y-m-d', $this->date('U') + 24 * 60 * 60);
+    $end = $this->date('Y-m-d', intval($this->date('U')) + 24 * 60 * 60);
     $this->watchdog('Yext: query between ' . $start . ' and ' . $end);
     try {
       $result = $this->queryYext($start, $end);
