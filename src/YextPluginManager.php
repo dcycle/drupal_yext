@@ -27,7 +27,6 @@ use Drupal\drupal_yext\Annotation\YextPluginAnnotation;
  */
 // See https://github.com/mglaman/phpstan-drupal/issues/113
 // @codingStandardsIgnoreStart
-// @phpstan-ignore-next-line
 class YextPluginManager extends DefaultPluginManager {
 // @codingStandardsIgnoreEnd
 
