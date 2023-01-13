@@ -105,7 +105,7 @@ class YextEntity {
       return '';
     }
     $field = $field->getValue();
-    return isset($field[0]['value']) ? $field[0]['value'] : '';
+    return $field[0]['value'] ?? '';
   }
 
   /**

@@ -3,5 +3,7 @@ parameters:
   excludePaths:
     - */tests/*
     - */test/*
+    - */drupal_yext/phpunit-autoload.php
+    - */drupal_yext/phpunit-bootstrap.php
 includes:
   - /var/www/html/phpstan.neon
